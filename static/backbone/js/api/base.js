@@ -22,7 +22,8 @@ require.config({
         'core': '../external/mediator/core-jquery',
         'sandbox': '../external/mediator/sandbox',
         'color-picker': '../external/jscolor',
-        'mapplication': './mapplication'
+        'mapplication': './mapplication',
+        'highcharts': 'http://code.highcharts.com/highcharts'
     },
     //waitSeconds: 0,
     shim: {
@@ -60,8 +61,10 @@ require.config({
         },
         'slick': {
             deps: ['jquery']
+        },
+        'highcharts': {
+            deps: ['jquery']
         }
-
     },
     urlArgs: "bust=" + (new Date()).getTime()
 });

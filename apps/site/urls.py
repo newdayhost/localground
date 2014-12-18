@@ -171,7 +171,12 @@ urlpatterns = patterns('',
                        # data API
                        url(r'^api/0/',
                            include('localground.apps.site.api.urls')),
-
+                       
+                       # charts
+                        (r'^charts/view/$',
+                        'localground.apps.site.views.charts.show_chart_viewer'),
+                        (r'^charts/edit/$',
+                        'localground.apps.site.views.charts.show_chart_editor'),
                        # interactive maps
                        (r'^maps/edit/air-quality/',
                         'localground.apps.site.views.ebays.show_ebays_map_editor'),

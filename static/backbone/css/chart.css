@@ -1,0 +1,94 @@
+.container {
+    width: 800px;
+}
+pre {
+    height: 400px;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+.table {
+    width: 130px;
+}
+.table td {
+    font-size: 12px;
+}
+.target-panel {
+    background-color: #fff;
+    border: solid 1px #CCC;
+    padding: 0px 10px 5px 5px;
+    margin-top: -1px;
+    background-image: url('extras/bg.png');
+    min-height: 40px;
+}
+#variables {
+    background-color: #fff;
+    border: solid 1px #CCC;
+    padding: 0px 10px 5px 5px;
+    margin-top: 10px;
+    background-image: url('extras/bg.png');
+}
+#y_axis {
+    background-color: #95c4ee;
+    border: solid 1px #CCC;
+    padding: 10px;
+    margin-top: 10px;
+}
+#chart_area {
+    min-width: 310px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+#y_axis {
+    background-color: #95c4ee;
+    border: solid 1px #CCC;
+    padding: 10px;
+    margin-top: 10px;
+    height: 300px;
+}
+#chart_area, #y_axis {
+    height: 300px;   
+}
+[draggable=true] {
+    -khtml-user-drag: element;
+    -webkit-user-drag: element;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    cursor: pointer;
+    margin: 5px 5px 0px 0px;
+    border-radius: 5px;
+    border: solid 1px #CCC;
+    padding: 2px 5px 2px 5px;
+    display: inline-block;
+    background-color: #EFEFEF;
+}
+[draggable=true]:hover {
+    background-color: #EEE;
+}
+[draggable=true] > i {
+    font-style: normal;
+    display: inline-block;
+    margin-right: 5px;
+    color: #428BB6;
+}
+.highlighted {
+    background-color: #FF5CAD !important;   
+}
+.chosen {
+    background-color: #ff67f8;
+    border: solid 3px #FF5CAD;
+    font-size: 8pt;
+}
+.textbox {
+    width: 700px;
+}
+.textbox > input {
+    width: 100% !important;
+}
+
+.variable-jar {
+    /*width: 800px;*/
+}
+
+
+
+
