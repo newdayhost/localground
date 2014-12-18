@@ -3,20 +3,29 @@
         <title>Local Ground - High Charts Demo</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
-        <link rel="stylesheet" href="/static/backbone/css/extras/prettyprint.css" />
         <link rel="stylesheet" href="/static/backbone/css/chart.css" />
     </head>
     <body>
-        <ul class="nav navbar-nav">
-            <li><a href="#">Local Ground</a></li>
-            <li class="dropdown" id="forms_menu_region">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Tables <span class="caret"></span></a>
-                <ul id="forms_menu" class="dropdown-menu" role="menu"></ul>
-            </li>
-        </ul>
         <div class="container" role="main">
-            
-            <h1>Charting Worksheet</h1>
+            <nav class="navbar navbar-default">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">Charting Worksheet</a></li>
+                    <!-- Table Menu -->
+                    <li class="dropdown" id="forms_menu_region">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Data <span class="caret"></span></a>
+                        <ul id="forms_menu" class="dropdown-menu" role="menu"></ul>
+                    </li>
+                    <!-- Chart Options -->
+                    <li class="dropdown" id="charts_menu_region">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Charts <span class="caret"></span></a>
+                        <ul id="charts_menu" class="dropdown-menu" role="menu">
+                            <li><a href="#bar">Bar Chart</a></li>
+                            <li><a href="#bar">Scatter Plot</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <h1></h1>
             <div class="row clearfix">
                 <div id="variables" class="col-md-12 column variable-jar"></div>
                 <div id="y_axis" class="col-md-2 column target-panel"></div>
@@ -24,7 +33,6 @@
                 <div id="x_axis" class="col-md-12 column target-panel"></div>
             </div>
         </div>
-
     </body>
     <script src="/static/backbone/js/external/require.js"></script>
     <script src="/static/backbone/js/api/base.js"></script>
@@ -38,9 +46,4 @@
 				}
             );
     </script>
-    <!-- script src="/static/backbone/js/api/charts/extras/prettify-min.js" type="text/javascript"></script>
-    <script src="http://code.highcharts.com/highcharts.js"></script>
-    <script src="http://code.highcharts.com/modules/exporting.js"></script>
-
-    <script src="/static/backbone/js/api/charts/chart_worksheet.js" type="text/javascript"></script -->
 </html>

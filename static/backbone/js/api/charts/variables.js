@@ -1,37 +1,35 @@
 define(["backbone",
-        "collections/records",
+        "underscore",
+        "collections/fields",
+        "text!../../templates/charts/variable.html",
         "highcharts"
     ],
-    function (Backbone, Records) {
+    function (Backbone, _, Fields, VariableTemplate) {
         "use strict";
         var Variables = Backbone.View.extend({
             app: null,
+            fields: null,
+            childTemplateText: _.template(VariableTemplate),
             initialize: function (opts) {
                 this.app = opts.app;
-                this.app.vent.on('form-changed', this.getData);
+                this.app.vent.on('form-changed', this.getFields, this);
             },
-            render: function () {
-                console.log('RECS!!!', this.records);
-                if (!this.records || this.records.length == 0) {
+            renderFields: function () {
+                var that = this;
+                if (!this.fields || this.fields.length == 0) {
                     return;
                 }
-                var that = this;
                 this.$el.html("");
-                this.records.each(function (record) {
-                    that.append(record.toJSON());
+                this.fields.each(function (field) {
+                    that.$el.append(that.childTemplateText(field.toJSON()));
                 });
             },
-            getData: function (data) {
-                var records = new Records([], {
-                    url: data.url
+            getFields: function (data) {
+                this.fields = new Fields([], {
+                    url: '/api/0/forms/1/fields/'
                 });
-                records.on('reset', this.doSomething);
-                records.state.currentPage = 1;
-                console.log("fetching");
-                records.fetch({ reset: true });
-            },
-            doSomething: function () {
-                console.log("doSomething");
+                this.listenTo(this.fields, "reset", this.renderFields);
+                this.fields.fetch({ reset: true });
             }
         });
         return Variables;

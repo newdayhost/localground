@@ -1,6 +1,9 @@
 .container {
     width: 800px;
 }
+.navbar-default {
+    margin-top: 20px;
+}
 pre {
     height: 400px;
     overflow-y: auto;
@@ -26,6 +29,7 @@ pre {
     padding: 0px 10px 5px 5px;
     margin-top: 10px;
     background-image: url('extras/bg.png');
+    min-height: 40px;
 }
 #y_axis {
     background-color: #95c4ee;
@@ -37,6 +41,7 @@ pre {
     min-width: 310px;
     max-width: 800px;
     margin: 0 auto;
+    overflow-y: auto;
 }
 #y_axis {
     background-color: #95c4ee;

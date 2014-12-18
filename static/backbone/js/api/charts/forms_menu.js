@@ -41,16 +41,14 @@ define(["backbone",
             },
 
             getFormVariables: function (e) {
-                var url = $(e.target).attr('href');
-                this.app.vent.trigger('form-changed', {
-                    url: url
-                });
-                //alert(url);
-                /*this.records = new Records([], {
-                    url: url
-                });
-                this.records.state.currentPage = 1;
-                this.records.fetch({ reset: true })*/
+                try {
+                    var url = $(e.target).attr('href');
+                    this.app.vent.trigger('form-changed', {
+                        url: url
+                    });
+                } catch (ex) {
+                    console.log(ex);
+                }
                 e.preventDefault();
             }
         });

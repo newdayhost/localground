@@ -1,14 +1,33 @@
 define(["backbone",
+        "collections/records",
         "highcharts"
     ],
-    function (Backbone) {
+    function (Backbone, Records) {
         "use strict";
         var ChartLoader = Backbone.View.extend({
+            records: null,
             initialize: function (opts) {
-                this.opts = opts;
+                this.app = opts.app;
+                this.app.vent.on('form-changed', this.getRecords, this);
             },
             render: function () {
-                this.$el.html("hello");
+                if (!this.records || this.records.length == 0) {
+                    return;
+                }
+                var that = this;
+                this.$el.html("");
+                this.records.each(function (record) {
+                    //console.log(record.toJSON());
+                    that.$el.append(JSON.stringify(record.toJSON()));
+                });
+            },
+            getRecords: function (data) {
+                this.records = new Records([], {
+                    url: data.url
+                });
+                this.listenTo(this.records, "reset", this.render);
+                this.records.state.currentPage = 1;
+                this.records.fetch({ reset: true });
             }
         });
         return ChartLoader;
