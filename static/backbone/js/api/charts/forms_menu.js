@@ -20,7 +20,7 @@ define(["backbone",
                 'click .change-form': 'getFormVariables'
             },
             childTemplate: _.template(
-                '<li><a class="change-form" href="/api/0/forms/<%= id %>/data/"><%= name %></a></li>'
+                '<li><a class="change-form" href="#" target="<%= id %>"><%= name %></a></li>'
             ),
             initialize: function (opts) {
                 this.app = opts.app;
@@ -42,9 +42,8 @@ define(["backbone",
 
             getFormVariables: function (e) {
                 try {
-                    var url = $(e.target).attr('href');
                     this.app.vent.trigger('form-changed', {
-                        url: url
+                        id: $(e.target).attr('target')
                     });
                 } catch (ex) {
                     console.log(ex);

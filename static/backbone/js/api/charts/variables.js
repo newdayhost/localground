@@ -9,12 +9,16 @@ define(["backbone",
         var Variables = Backbone.View.extend({
             app: null,
             fields: null,
+            events: {
+                'dragover .draggable': 'ignore',
+                'drop .draggable': 'addToAxis'
+            },
             childTemplateText: _.template(VariableTemplate),
             initialize: function (opts) {
                 this.app = opts.app;
                 this.app.vent.on('form-changed', this.getFields, this);
             },
-            renderFields: function () {
+            render: function () {
                 var that = this;
                 if (!this.fields || this.fields.length == 0) {
                     return;
@@ -26,10 +30,21 @@ define(["backbone",
             },
             getFields: function (data) {
                 this.fields = new Fields([], {
-                    url: '/api/0/forms/1/fields/'
+                    url: '/api/0/forms/' + data.id + '/fields/'
                 });
-                this.listenTo(this.fields, "reset", this.renderFields);
+                this.listenTo(this.fields, "reset", this.render);
                 this.fields.fetch({ reset: true });
+            },
+            ignore: function (e) {
+                e.preventDefault();
+            },
+            addToAxis: function (e) {
+                alert("add");
+                /*var field_id = event.dataTransfer.getData('Text'),
+                    $elem = $('#' + field_id).removeClass("chosen").removeClass("highlighted");
+                $(this).append($elem);
+                alert("remove variable from chart");
+                */
             }
         });
         return Variables;

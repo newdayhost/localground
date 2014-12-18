@@ -23,7 +23,7 @@ define(["backbone",
             },
             getRecords: function (data) {
                 this.records = new Records([], {
-                    url: data.url
+                    url: '/api/0/forms/' + data.id + '/data/'
                 });
                 this.listenTo(this.records, "reset", this.render);
                 this.records.state.currentPage = 1;

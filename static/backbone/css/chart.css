@@ -2,7 +2,11 @@
     width: 800px;
 }
 .navbar-default {
-    margin-top: 20px;
+    margin-top: 10px;
+}
+.row {
+    margin-right: 0px;
+    margin-left: 0px;
 }
 pre {
     height: 400px;
