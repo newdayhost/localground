@@ -7,15 +7,17 @@ define(["jquery",
         var Axis = Backbone.View.extend({
             app: null,
             className: 'fill',
+            axisType: null,
             events: {
                 'drop': 'handleDrop',
                 'dragover ': 'ignore'
             },
             initialize: function (opts) {
                 this.app = opts.app;
+                this.axisType = opts.axisType;
             },
             render: function () {
-                this.$el.html("");
+                this.$el.html(this.axisType);
             },
             ignore: function (e) {
                 e.preventDefault();
@@ -24,15 +26,19 @@ define(["jquery",
                 var fieldData = event.dataTransfer.getData('text/plain'),
                     $nodeCopy;
                 fieldData = JSON.parse(fieldData);
-                if ([2, 5].indexOf(fieldData.data_type) != -1) {
-                   $nodeCopy = $('#' + fieldData.col_name).clone();
-                    $nodeCopy.removeClass("highlighted");
-                    $nodeCopy.attr('id', fieldData.col_name + "_new");
-                    $(e.target).append($nodeCopy);
-                } else {
-                    alert("only numeric fields here: " + fieldData.data_type);
-                    $('#' + fieldData.col_name).removeClass("highlighted");
-                }
+                
+                // make a copy of the dragged node and add it to the axis
+                // panel
+                $nodeCopy = $('#' + fieldData.col_name).clone();
+                $nodeCopy.removeClass("highlighted");
+                $nodeCopy.attr('id', fieldData.col_name + "_new");
+                $(e.target).append($nodeCopy);
+
+                //notify the application that a variable has been dropped.
+                this.app.vent.trigger('variable-added', {
+                    col_name: fieldData.col_name,
+                    axisType: this.axisType
+                });
                 e.preventDefault();
             }
         });

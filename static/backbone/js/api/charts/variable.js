@@ -18,18 +18,10 @@ define(["marionette",
             highlight: function (e) {
                 $(e.target).addClass("highlighted");
                 event.dataTransfer.setData("text/plain", JSON.stringify({
+                    id: this.model.get("id"),
                     col_name: this.model.get("col_name"),
                     data_type: this.model.get("data_type")
                 }));
-            },
-            addToAxis: function (e) {
-                alert("add");
-                /*var field_id = event.dataTransfer.getData('Text'),
-                    $elem = $('#' + field_id).removeClass("chosen").removeClass("highlighted");
-                $(this).append($elem);
-                alert("remove variable from chart");
-                }
-                */
             }
         });
         return Variable;

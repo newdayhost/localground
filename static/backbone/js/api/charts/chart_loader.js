@@ -6,9 +6,12 @@ define(["backbone",
         "use strict";
         var ChartLoader = Backbone.View.extend({
             records: null,
+            xVariables: [],
+            yVariables: [],
             initialize: function (opts) {
                 this.app = opts.app;
                 this.app.vent.on('form-changed', this.getRecords, this);
+                this.app.vent.on('variable-added', this.getFields, this);
             },
             render: function () {
                 if (!this.records || this.records.length == 0) {

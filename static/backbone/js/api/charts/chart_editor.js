@@ -43,12 +43,9 @@ define(["marionette",
             var opts = {
                 app: this
             };
-            ChartEditor.formsMenuRegion.show(new FormsMenu({
-                app: this,
-                $el: $('#forms_menu')
-            }));
-            ChartEditor.yAxisRegion.show(new Axis(opts));
-            ChartEditor.xAxisRegion.show(new Axis(opts));
+            ChartEditor.formsMenuRegion.show(new FormsMenu(_.extend(opts, { $el: $('#forms_menu') })));
+            ChartEditor.yAxisRegion.show(new Axis(_.extend(opts, { axisType: 'y' })));
+            ChartEditor.xAxisRegion.show(new Axis(_.extend(opts, { axisType: 'x' })));
             ChartEditor.chartRegion.show(new ChartLoader(opts));
             ChartEditor.variableRegion.show(new Variables(opts));
             this.initAJAX(options);
