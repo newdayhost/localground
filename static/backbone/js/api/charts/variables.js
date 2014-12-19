@@ -1,50 +1,35 @@
-define(["backbone",
-        "underscore",
+define(["marionette",
+        "jquery",
         "collections/fields",
-        "text!../../templates/charts/variable.html",
+        "charts/variable",
         "highcharts"
     ],
-    function (Backbone, _, Fields, VariableTemplate) {
+    function (Marionette, $, Fields, Variable) {
         "use strict";
-        var Variables = Backbone.View.extend({
+        /**
+         * The Variables Class's job is to display the user
+         * the available variables, given the form selection.
+         *
+         * Listens for:
+         *  - 'form-changed'
+         *
+         * Notifies when:
+         *   - a variable has been dragged onto one of the axes.
+         */
+        var Variables = Marionette.CollectionView.extend({
             app: null,
-            fields: null,
-            events: {
-                'dragover .draggable': 'ignore',
-                'drop .draggable': 'addToAxis'
-            },
-            childTemplateText: _.template(VariableTemplate),
+            collection: null,
+            childView: Variable,
             initialize: function (opts) {
                 this.app = opts.app;
                 this.app.vent.on('form-changed', this.getFields, this);
             },
-            render: function () {
-                var that = this;
-                if (!this.fields || this.fields.length == 0) {
-                    return;
-                }
-                this.$el.html("");
-                this.fields.each(function (field) {
-                    that.$el.append(that.childTemplateText(field.toJSON()));
-                });
-            },
             getFields: function (data) {
-                this.fields = new Fields([], {
+                this.collection = new Fields([], {
                     url: '/api/0/forms/' + data.id + '/fields/'
                 });
-                this.listenTo(this.fields, "reset", this.render);
-                this.fields.fetch({ reset: true });
-            },
-            ignore: function (e) {
-                e.preventDefault();
-            },
-            addToAxis: function (e) {
-                alert("add");
-                /*var field_id = event.dataTransfer.getData('Text'),
-                    $elem = $('#' + field_id).removeClass("chosen").removeClass("highlighted");
-                $(this).append($elem);
-                alert("remove variable from chart");
-                */
+                this.listenTo(this.collection, "reset", this.render);
+                this.collection.fetch({ reset: true });
             }
         });
         return Variables;

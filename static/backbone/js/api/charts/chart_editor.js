@@ -47,6 +47,7 @@ define(["marionette",
                 app: this,
                 $el: $('#forms_menu')
             }));
+            ChartEditor.yAxisRegion.show(new Axis(opts));
             ChartEditor.xAxisRegion.show(new Axis(opts));
             ChartEditor.chartRegion.show(new ChartLoader(opts));
             ChartEditor.variableRegion.show(new Variables(opts));
