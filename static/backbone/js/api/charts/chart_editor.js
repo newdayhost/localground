@@ -3,13 +3,14 @@ define(["marionette",
         "underscore",
         "jquery",
         "lib/appUtilities",
+        "charts/chart_data_manager",
         "charts/forms_menu",
         "charts/axis",
         "charts/chart_loader",
         "charts/variables",
         "jquery.bootstrap"
     ],
-    function (Marionette, Backbone, _, $, appUtilities,
+    function (Marionette, Backbone, _, $, appUtilities, DataManager,
               FormsMenu, Axis, ChartLoader, Variables) {
         "use strict";
 
@@ -41,7 +42,8 @@ define(["marionette",
 
         ChartEditor.addInitializer(function (options) {
             var opts = {
-                app: this
+                app: this,
+                dataManager: new DataManager({ app: this })
             };
             ChartEditor.formsMenuRegion.show(new FormsMenu(_.extend(opts, { $el: $('#forms_menu') })));
             ChartEditor.yAxisRegion.show(new Axis(_.extend(opts, { axisType: 'y' })));

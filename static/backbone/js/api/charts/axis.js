@@ -15,9 +15,13 @@ define(["jquery",
             initialize: function (opts) {
                 this.app = opts.app;
                 this.axisType = opts.axisType;
+                this.app.vent.on('form-data-changed', this.clearVariables, this);
             },
             render: function () {
                 this.$el.html(this.axisType);
+            },
+            clearVariables: function () {
+                this.$el.empty();
             },
             ignore: function (e) {
                 e.preventDefault();

@@ -7,7 +7,7 @@ define(["collections/fields",
             this.formData = null;
             this.initialize = function (opts) {
                 this.app = opts.app;
-                this.app.vent.on('form-changed', this.getData, this);
+                this.app.vent.on('form-changed', this.loadData, this);
                 this.formData = {};
             };
             /**
@@ -19,15 +19,25 @@ define(["collections/fields",
              *  }
              */
             this.loadData = function (opts) {
-                var key = 'form_' + opts.id;
+                var key = 'form_' + opts.id,
+                    isNew = false;
                 if (!this.formData[key]) {
                     this.formData[key] = {};
                 }
+
+                // if this data hasn't been loaded from data API, load it:
                 if (!this.formData[key].fields) {
                     this.getFields(opts.id);
-                }
-                if (!this.formData[key].records) {
                     this.getRecords(opts.id);
+                    isNew = true;
+                }
+                this.app.vent.trigger('form-data-changed', {
+                    fields: this.formData[key].fields,
+                    records: this.formData[key].records
+                });
+                if (!isNew) {
+                    this.formData[key].fields.trigger('reset');
+                    this.formData[key].records.trigger('reset');
                 }
             };
 
@@ -36,11 +46,7 @@ define(["collections/fields",
                     fields = new Fields([], {
                         url: '/api/0/forms/' + id + '/fields/'
                     });
-                fields.fetch({
-                    success: function () {
-                        console.log('fetched: ', key);
-                    }
-                });
+                fields.fetch({ reset: true });
                 this.formData[key].fields = fields;
             };
 
@@ -50,11 +56,7 @@ define(["collections/fields",
                         url: '/api/0/forms/' + id + '/data/'
                     });
                 records.state.currentPage = 1;
-                records.fetch({
-                    success: function () {
-                        console.log('fetched: ', key);
-                    }
-                });
+                records.fetch({ reset: true });
                 this.formData[key].records = records;
             };
 
