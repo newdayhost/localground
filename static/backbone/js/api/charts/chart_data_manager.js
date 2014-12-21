@@ -60,6 +60,10 @@ define(["collections/fields",
                 this.formData[this.activeFormID].records = records;
             };
 
+            this.getRecords = function () {
+                return this.formData[this.activeFormID].records;
+            };
+
             this.getField = function (id) {
                 return this.formData[this.activeFormID].fields.get(id);
             };

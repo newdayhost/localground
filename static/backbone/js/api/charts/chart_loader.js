@@ -34,16 +34,12 @@ define(["marionette",
             },
 
             setChart: function (data) {
-                switch (data.chartType) {
-                    case "bar":
-                        this.ChartType = BarChart;
-                        break;
-                    case "scatter":
-                        this.ChartType = BarChart;
-                        break;
-                    case "pie":
-                        this.ChartType = BarChart;
-                        break;
+                if (data.chartType == "bar") {
+                    this.ChartType = BarChart;
+                } else if (data.chartType == "scatter") {
+                    this.ChartType = BarChart;
+                } else if (data.chartType == "pie") {
+                    this.ChartType = BarChart;
                 }
                 this.onShow();
             },

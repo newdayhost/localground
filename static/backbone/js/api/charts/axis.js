@@ -26,10 +26,12 @@ define(["jquery",
             },
             setCollection: function () {
                 this.collection = new Fields([], { formID: this.dataManager.activeFormID });
-                // when the collection gets reset (loaded via ajax),
                 // re-render the variable panel:
+                this.listenTo(this.collection, "reset", this.render);
                 this.listenTo(this.collection, "add", this.render);
                 this.listenTo(this.collection, "remove", this.render);
+                this.collection.trigger('reset');
+
             },
             ignore: function (e) {
                 e.preventDefault();
