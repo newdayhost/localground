@@ -1,36 +1,67 @@
-define(["backbone",
-        "collections/records",
-        "highcharts"
+define(["marionette",
+        "underscore",
+        "charts/axis",
+        "charts/barchart",
+        "text!../../templates/charts/chart_loader.html"
     ],
-    function (Backbone, Records) {
-        "use strict";
-        var ChartLoader = Backbone.View.extend({
-            collection: null,
-            xVariables: [],
-            yVariables: [],
+    function (Marionette, _, Axis, BarChart, ChartTemplate) {
+        'use strict';
+        /**
+         * A class that handles display and rendering of the
+         * data panel and projects menu
+         * @class DataPanel
+         */
+        var ChartLoader = Marionette.LayoutView.extend({
+            app: null,
+            dataManager: null,
+            ChartType: BarChart,
+            template: function () {
+                return _.template(ChartTemplate);
+            },
+
+            regions: {
+                xAxisRegion: "#x_axis",
+                yAxisRegion: "#y_axis",
+                chartRegion: "#chart_area"
+            },
+            /**
+             * Initializes the dataPanel
+             * @param {Object} opts
+             */
             initialize: function (opts) {
                 this.app = opts.app;
                 this.dataManager = opts.dataManager;
-                this.app.vent.on('form-data-changed', this.setCollection, this);
-                this.app.vent.on('variable-added', this.getFields, this);
             },
-            render: function () {
-                if (!this.collection || this.collection.length == 0) {
-                    return;
+
+            setChart: function (data) {
+                switch (data.chartType) {
+                    case "bar":
+                        this.ChartType = BarChart;
+                        break;
+                    case "scatter":
+                        this.ChartType = BarChart;
+                        break;
+                    case "pie":
+                        this.ChartType = BarChart;
+                        break;
                 }
-                var that = this;
-                this.$el.html("");
-                this.collection.each(function (record) {
-                    //console.log(record.toJSON());
-                    that.$el.append(JSON.stringify(record.toJSON()));
-                });
+                this.onShow();
             },
-            setCollection: function (data) {
-                console.log('setting...');
-                this.collection = data.records;
-                // when the collection gets reset (loaded via ajax),
-                // re-render the chart panel:
-                this.listenTo(this.collection, "reset", this.render);
+
+            onShow: function () {
+                var opts = {
+                        app: this.app,
+                        dataManager: this.dataManager
+                    },
+                    xAxis = new Axis(_.extend(opts, { axisType: 'x' })),
+                    yAxis = new Axis(_.extend(opts, { axisType: 'y' })),
+                    chartOpts = _.extend(_.clone(opts), { xAxis: xAxis, yAxis: yAxis });
+                this.xAxisRegion.show(xAxis);
+                this.yAxisRegion.show(yAxis);
+                this.chartRegion.show(new this.ChartType(chartOpts));
+            },
+            destroy: function () {
+                this.remove();
             }
         });
         return ChartLoader;

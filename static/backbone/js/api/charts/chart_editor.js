@@ -5,13 +5,12 @@ define(["marionette",
         "lib/appUtilities",
         "charts/chart_data_manager",
         "charts/forms_menu",
-        "charts/axis",
-        "charts/chart_loader",
         "charts/variables",
+        "charts/chart_loader",
         "jquery.bootstrap"
     ],
     function (Marionette, Backbone, _, $, appUtilities, DataManager,
-              FormsMenu, Axis, ChartLoader, Variables) {
+              FormsMenu, Variables, ChartLoader) {
         "use strict";
 
         var ChartEditor = new Marionette.Application();
@@ -19,9 +18,7 @@ define(["marionette",
 
         ChartEditor.addRegions({
             formsMenuRegion: "#forms_menu",
-            yAxisRegion: "#y_axis",
-            xAxisRegion: "#x_axis",
-            chartRegion: "#chart_area",
+            chartLoaderRegion: "#chart_loader",
             variableRegion: "#variables"
         });
 
@@ -41,15 +38,11 @@ define(["marionette",
         });
 
         ChartEditor.addInitializer(function (options) {
-            var opts = {
-                app: this,
-                dataManager: new DataManager({ app: this })
-            };
+            var opts = { app: this },
+                dataManager = new DataManager({ app: this });
             ChartEditor.formsMenuRegion.show(new FormsMenu(_.extend(opts, { $el: $('#forms_menu') })));
-            ChartEditor.yAxisRegion.show(new Axis(_.extend(opts, { axisType: 'y' })));
-            ChartEditor.xAxisRegion.show(new Axis(_.extend(opts, { axisType: 'x' })));
-            ChartEditor.chartRegion.show(new ChartLoader(opts));
             ChartEditor.variableRegion.show(new Variables(opts));
+            ChartEditor.chartLoaderRegion.show(new ChartLoader(_.extend(opts, {dataManager: dataManager})));
             this.initAJAX(options);
         });
 

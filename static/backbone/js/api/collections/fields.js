@@ -9,10 +9,11 @@ define(["jquery", "models/field", "collections/base"], function ($, Field, Base)
         url: null,
 		initialize: function (recs, opts) {
             $.extend(this, opts);
-            if (!this.url) {
-                alert("The Records collection requires a url parameter upon initialization");
+            if (!this.formID) {
+                alert("The Fields collection requires a formID parameter upon initialization");
                 return;
             }
+			this.url = '/api/0/forms/' + this.formID + '/fields/';
             Base.prototype.initialize.apply(this, arguments);
         }
     });

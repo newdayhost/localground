@@ -30,9 +30,7 @@ define(["backbone",
                 this.listenTo(this.collection, 'reset', this.render);
             },
             render: function () {
-                if (this.collection.length == 0) {
-                    return;
-                }
+                if (this.collection.length == 0) { return; }
                 var that = this;
                 this.$el.empty();
                 this.collection.each(function (form) {
@@ -41,13 +39,13 @@ define(["backbone",
             },
 
             getFormVariables: function (e) {
-                try {
-                    this.app.vent.trigger('form-changed', {
-                        id: $(e.target).attr('target')
-                    });
-                } catch (ex) {
-                    console.log(ex);
-                }
+                //try {
+                this.app.vent.trigger('form-changed', {
+                    id: $(e.target).attr('target')
+                });
+                //} catch (ex) {
+                //    console.log(ex);
+                //}
                 e.preventDefault();
             }
         });

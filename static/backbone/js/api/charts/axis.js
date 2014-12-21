@@ -1,11 +1,15 @@
 define(["jquery",
-        "backbone",
-        "highcharts"
+        "marionette",
+        "charts/variable",
+        "collections/fields"
     ],
-    function ($, Backbone) {
+    function ($, Marionette, Variable, Fields) {
         "use strict";
-        var Axis = Backbone.View.extend({
+        var Axis = Marionette.CollectionView.extend({
             app: null,
+            dataManager: null,
+            collection: null,
+            childView: Variable,
             className: 'fill',
             axisType: null,
             events: {
@@ -13,34 +17,32 @@ define(["jquery",
                 'dragover ': 'ignore'
             },
             initialize: function (opts) {
+                //$.extend(this, opts);
+                console.log('Axis', this.$el);
                 this.app = opts.app;
+                this.dataManager = opts.dataManager;
                 this.axisType = opts.axisType;
-                this.app.vent.on('form-data-changed', this.clearVariables, this);
+                this.app.vent.on('form-data-changed', this.setCollection, this);
             },
-            render: function () {
-                this.$el.html(this.axisType);
-            },
-            clearVariables: function () {
-                this.$el.empty();
+            setCollection: function () {
+                this.collection = new Fields([], { formID: this.dataManager.activeFormID });
+                // when the collection gets reset (loaded via ajax),
+                // re-render the variable panel:
+                this.listenTo(this.collection, "add", this.render);
+                this.listenTo(this.collection, "remove", this.render);
             },
             ignore: function (e) {
                 e.preventDefault();
             },
             handleDrop: function (e) {
-                var fieldData = event.dataTransfer.getData('text/plain'),
-                    $nodeCopy;
-                fieldData = JSON.parse(fieldData);
-                
-                // make a copy of the dragged node and add it to the axis
-                // panel
-                $nodeCopy = $('#' + fieldData.col_name).clone();
-                $nodeCopy.removeClass("highlighted");
-                $nodeCopy.attr('id', fieldData.col_name + "_new");
-                $(e.target).append($nodeCopy);
+                var fieldID = event.dataTransfer.getData('text/plain'),
+                    field = this.dataManager.getField(fieldID);
+                this.collection.add(field);
+                console.log(this.collection);
 
                 //notify the application that a variable has been dropped.
                 this.app.vent.trigger('variable-added', {
-                    col_name: fieldData.col_name,
+                    field: field,
                     axisType: this.axisType
                 });
                 e.preventDefault();
