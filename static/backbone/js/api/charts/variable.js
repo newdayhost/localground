@@ -12,7 +12,7 @@ define(["marionette",
                 'change': 'render'
             },
             events: {
-                'click .draggable': 'detach',
+                'click .fa-close': 'detach',
                 'dragstart .draggable': 'highlight'
             },
             highlight: function (e) {

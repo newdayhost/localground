@@ -1,23 +1,26 @@
+.container-fluid {
+    padding: 0px;    
+}
+
 .container {
-    width: 800px;
+    /*width: 800px;*/
 }
 .navbar-default {
-    margin-top: 10px;
+    margin: 0px;
 }
 .row {
-    margin-right: 0px;
-    margin-left: 0px;
+    margin: 0px;
 }
 pre {
     height: 400px;
     overflow-y: auto;
     margin-top: 10px;
 }
-.table {
-    width: 130px;
+.dropdown > a {
+    background-color: #FFF;
 }
-.table td {
-    font-size: 12px;
+.dropdown > a:hover, .dropdown > a:focus, .dropdown.open > a:hover {
+    background-color: #FFF !important;
 }
 .target-panel {
     background-color: #fff;
@@ -27,7 +30,15 @@ pre {
     background-image: url('extras/bg.png');
     min-height: 40px;
 }
-#variables {
+.chart-panel {
+    min-height: 400px;
+}
+.chart-controls {
+    background-image: url('extras/bg.png');
+    border-left: solid 1px #CCC;
+    min-height: 400px;
+}
+.variable-jar {
     background-color: #fff;
     border: solid 1px #CCC;
     padding: 0px 10px 5px 5px;
@@ -73,6 +84,7 @@ pre {
     padding: 2px 5px 2px 5px;
     display: inline-block;
     background-color: #EFEFEF;
+    font-size: 13px;
 }
 [draggable=true]:hover {
     background-color: #EEE;
@@ -102,8 +114,11 @@ pre {
     height: 100%;
 }
 
-.variable-jar {
-    /*width: 800px;*/
+.variable-jar .fa-close {
+    display: none;
+}
+.target-panel .fa-close {
+    margin-top: 3px;
 }
 
 

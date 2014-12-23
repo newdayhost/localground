@@ -6,28 +6,37 @@
         <link rel="stylesheet" href="/static/backbone/css/chart.css" />
     </head>
     <body>
-        <div class="container" role="main">
+        <div class="container-fluid" role="main">
             <nav class="navbar navbar-default">
                 <ul class="nav navbar-nav">
                     <li><a href="#">Charting Worksheet</a></li>
-                    <!-- Table Menu -->
-                    <li class="dropdown" id="forms_menu_region">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Data <span class="caret"></span></a>
-                        <ul id="forms_menu" class="dropdown-menu" role="menu"></ul>
-                    </li>
-                    <!-- Chart Options -->
-                    <li class="dropdown" id="charts_menu_region">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Charts <span class="caret"></span></a>
-                        <ul id="charts_menu" class="dropdown-menu" role="menu">
-                            <li><a href="#bar">Bar Chart</a></li>
-                            <li><a href="#bar">Scatter Plot</a></li>
-                        </ul>
-                    </li>
                 </ul>
             </nav>
             <div class="row clearfix">
-                <div id="variables" class="col-md-12 column variable-jar"></div>
-                <div id="chart_loader"></div>
+                <div id="controls" class="col-md-3 column chart-controls">
+                    <div id="chart_options"></div>
+                    <!--ul class="nav nav-pills" role="tablist">
+                        <li class="dropdown">
+                            <a href="#" id="forms_menu_region" class="dropdown-toggle" data-toggle="dropdown">
+                                Data
+                                <span class="caret"></span>
+                            </a>
+                            <ul id="forms_menu" class="dropdown-menu" role="menu"></ul>
+                        </li>
+                        <li class="dropdown">
+                            <a id="drop5" href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" role="button" aria-expanded="false">
+                                Charts
+                                <span class="caret"></span>
+                            </a>
+                            <ul id="charts_menu" class="dropdown-menu" role="menu">
+                                <li><a href="#bar">Bar Chart</a></li>
+                                <li><a href="#bar">Scatter Plot</a></li>
+                            </ul>
+                        </li>
+                    </ul -->
+                    <div id="variables"></div>
+                </div>
+                <div id="chart_loader" class="col-md-9 column chart-panel"></div> 
             </div>
         </div>
     </body>
