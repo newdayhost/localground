@@ -31,6 +31,7 @@ define(["marionette",
             initialize: function (opts) {
                 this.app = opts.app;
                 this.dataManager = opts.dataManager;
+                this.app.vent.on('chart-type-changed', this.setChart, this);
             },
 
             setChart: function (data) {
@@ -44,17 +45,24 @@ define(["marionette",
                 this.onShow();
             },
 
+            getChartOptions: function () {
+                return {
+                    app: this.app,
+                    dataManager: this.dataManager,
+                    xAxis: this.xAxis,
+                    yAxis: this.yAxis
+                };
+            },
             onShow: function () {
                 var opts = {
-                        app: this.app,
-                        dataManager: this.dataManager
-                    },
-                    xAxis = new Axis(_.extend(opts, { axisType: 'x' })),
-                    yAxis = new Axis(_.extend(opts, { axisType: 'y' })),
-                    chartOpts = _.extend(_.clone(opts), { xAxis: xAxis, yAxis: yAxis });
-                this.xAxisRegion.show(xAxis);
-                this.yAxisRegion.show(yAxis);
-                this.chartRegion.show(new this.ChartType(chartOpts));
+                    app: this.app,
+                    dataManager: this.dataManager
+                };
+                this.xAxis = new Axis(_.extend(opts, { axisType: 'x' }));
+                this.yAxis = new Axis(_.extend(opts, { axisType: 'y' }));
+                this.xAxisRegion.show(this.xAxis);
+                this.yAxisRegion.show(this.yAxis);
+                this.chartRegion.show(new this.ChartType(this.getChartOptions()));
             },
             destroy: function () {
                 this.remove();

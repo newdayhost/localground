@@ -12,12 +12,17 @@ define(["marionette",
                 'change': 'render'
             },
             events: {
-                'click .draggable': 'addToAxis',
+                'click .draggable': 'detach',
                 'dragstart .draggable': 'highlight'
             },
             highlight: function (e) {
                 $(e.target).addClass("highlighted");
                 event.dataTransfer.setData("text/plain", this.model.get("id"));
+            },
+            detach: function (e) {
+                console.log('remove');
+                this.trigger("detach");
+                //this.remove();
             }
         });
         return Variable;

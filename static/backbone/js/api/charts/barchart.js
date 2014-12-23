@@ -1,10 +1,10 @@
 define(["underscore",
-        "charts/chart",
+        "backbone",
         "highcharts"
     ],
-    function (_, Chart) {
+    function (_, Backbone) {
         "use strict";
-        var BarChart = Chart.extend({
+        var BarChart = Backbone.View.extend({
             collection: null,
             xAxis: null,
             yAxis: null,
@@ -14,7 +14,7 @@ define(["underscore",
                 this.dataManager = opts.dataManager;
                 this.xAxis = opts.xAxis;
                 this.yAxis = opts.yAxis;
-                this.app.vent.on("variable-added", this.addVariable, this);
+                this.app.vent.on("variable-changed", this.render, this);
                 this.app.vent.on('form-data-changed', this.clear, this);
             },
             render: function () {
@@ -26,14 +26,6 @@ define(["underscore",
             },
             clear: function () {
                 this.$el.empty();
-            },
-            addVariable: function (data) {
-                if (data.axisType == 'x') {
-                    this.xVariables.push(data.field);
-                } else {
-                    this.yVariables.push(data.field);
-                }
-                this.render();
             },
             renderHistogram: function () {
                 var collection = this.dataManager.getRecords(),

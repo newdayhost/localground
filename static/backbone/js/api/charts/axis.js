@@ -23,6 +23,7 @@ define(["jquery",
                 this.dataManager = opts.dataManager;
                 this.axisType = opts.axisType;
                 this.app.vent.on('form-data-changed', this.setCollection, this);
+                this.on("childview:detach", this.handleRemove);
             },
             setCollection: function () {
                 this.collection = new Fields([], { formID: this.dataManager.activeFormID });
@@ -31,7 +32,6 @@ define(["jquery",
                 this.listenTo(this.collection, "add", this.render);
                 this.listenTo(this.collection, "remove", this.render);
                 this.collection.trigger('reset');
-
             },
             ignore: function (e) {
                 e.preventDefault();
@@ -40,14 +40,15 @@ define(["jquery",
                 var fieldID = event.dataTransfer.getData('text/plain'),
                     field = this.dataManager.getField(fieldID);
                 this.collection.add(field);
-                console.log(this.collection);
-
-                //notify the application that a variable has been dropped.
-                this.app.vent.trigger('variable-added', {
-                    field: field,
-                    axisType: this.axisType
-                });
+                //notify the application that a variable has been added.
+                this.app.vent.trigger('variable-changed');
                 e.preventDefault();
+            },
+            handleRemove: function (childView) {
+                this.collection.remove(childView.model);
+                this.render();
+                //notify the application that a variable has been removed.
+                this.app.vent.trigger('variable-changed');
             }
         });
         return Axis;
