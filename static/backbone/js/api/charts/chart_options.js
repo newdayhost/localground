@@ -1,9 +1,10 @@
 define(["marionette",
         "underscore",
+        "jquery",
         "collections/forms",
         "text!../../templates/charts/options.html"
     ],
-    function (Marionette, _, Forms, OptionsTemplate) {
+    function (Marionette, _, $, Forms, OptionsTemplate) {
         "use strict";
         var ChartOpts = Marionette.ItemView.extend({
             template: _.template(OptionsTemplate),
@@ -19,6 +20,7 @@ define(["marionette",
                 this.collection = new Forms();
                 this.collection.fetch({reset: true});
                 this.listenTo(this.collection, 'reset', this.render);
+                this.app.vent.on('resized', this.resize, this);
             },
             onRender: function () {
                 if (this.collection.length == 0) { return; }
@@ -28,18 +30,25 @@ define(["marionette",
                 this.collection.each(function (form) {
                     $sel.append(that.formItemTemplate(form.toJSON()));
                 });
+                this.notifyFormChanged();
+                this.resize();
             },
             notifyFormChanged: function (e) {
                 this.app.vent.trigger('form-changed', {
-                    id: $(e.target).val()
+                    id: this.$el.find('#forms_menu').val()
                 });
-                e.preventDefault();
+                if (e) { e.preventDefault(); }
             },
             notifyChartChanged: function (e) {
                 this.app.vent.trigger('chart-changed', {
-                    id: $(e.target).val()
+                    id: this.$el.find('#forms_menu').val()
                 });
-                e.preventDefault();
+                if (e) { e.preventDefault(); }
+            },
+            resize: function () {
+                var newHeight = $(window).height() - $('nav').height(),
+                    padding = $('#controls').outerHeight() - $('#controls').height();
+                $('#controls').height(newHeight - padding);
             }
         });
         return ChartOpts;

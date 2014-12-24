@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title>Local Ground - High Charts Demo</title>
@@ -14,26 +15,7 @@
             </nav>
             <div class="row clearfix">
                 <div id="controls" class="col-md-3 column chart-controls">
-                    <div id="chart_options"></div>
-                    <!--ul class="nav nav-pills" role="tablist">
-                        <li class="dropdown">
-                            <a href="#" id="forms_menu_region" class="dropdown-toggle" data-toggle="dropdown">
-                                Data
-                                <span class="caret"></span>
-                            </a>
-                            <ul id="forms_menu" class="dropdown-menu" role="menu"></ul>
-                        </li>
-                        <li class="dropdown">
-                            <a id="drop5" href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" role="button" aria-expanded="false">
-                                Charts
-                                <span class="caret"></span>
-                            </a>
-                            <ul id="charts_menu" class="dropdown-menu" role="menu">
-                                <li><a href="#bar">Bar Chart</a></li>
-                                <li><a href="#bar">Scatter Plot</a></li>
-                            </ul>
-                        </li>
-                    </ul -->
+                    <div id="chart_options" class="chart-options"></div>
                     <div id="variables"></div>
                 </div>
                 <div id="chart_loader" class="col-md-9 column chart-panel"></div> 
@@ -47,7 +29,8 @@
 				["jquery", "/static/backbone/js/api/charts/chart_editor.js"],
 				function($, ChartEditor) {
 					$(function() {
-						ChartEditor.start({});
+						var chartEditor = new ChartEditor();
+                        chartEditor.start({});
 					});
 				}
             );

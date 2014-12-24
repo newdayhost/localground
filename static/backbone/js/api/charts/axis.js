@@ -17,8 +17,6 @@ define(["jquery",
                 'dragover ': 'ignore'
             },
             initialize: function (opts) {
-                //$.extend(this, opts);
-                console.log('Axis', this.$el);
                 this.app = opts.app;
                 this.dataManager = opts.dataManager;
                 this.axisType = opts.axisType;

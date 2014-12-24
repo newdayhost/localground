@@ -1,21 +1,24 @@
 define(["underscore",
+        "jquery",
         "backbone",
         "highcharts"
     ],
-    function (_, Backbone) {
+    function (_, $, Backbone) {
         "use strict";
         var BarChart = Backbone.View.extend({
             collection: null,
+            timeoutID: null,
             xAxis: null,
             yAxis: null,
+            chartHeight: 300,
             initialize: function (opts) {
-                console.log('BarChart');
                 this.app = opts.app;
                 this.dataManager = opts.dataManager;
                 this.xAxis = opts.xAxis;
                 this.yAxis = opts.yAxis;
                 this.app.vent.on("variable-changed", this.render, this);
                 this.app.vent.on('form-data-changed', this.clear, this);
+                this.app.vent.on('resized', this.resize, this);
             },
             render: function () {
                 if (!this.yAxis.collection) { return; }
@@ -28,6 +31,7 @@ define(["underscore",
                 this.$el.empty();
             },
             renderHistogram: function () {
+                this.setSize();
                 var collection = this.dataManager.getRecords(),
                     categories = [],
                     seriesData = [],
@@ -51,7 +55,7 @@ define(["underscore",
                 chartOpts = {
                     chart: {
                         type: 'column',
-                        height: 300
+                        height: this.chartHeight
                     },
                     title: {
                         text: 'My Chart Title'
@@ -79,6 +83,19 @@ define(["underscore",
                 };
                 _.extend(chartOpts, { series: seriesData });
                 this.$el.highcharts(chartOpts);
+            },
+            setSize: function () {
+                var newHeight = $(window).height() - $('nav').height(),
+                    padding = $('#chart_area').outerHeight() - $('#chart_area').height();
+                this.chartHeight = newHeight - padding - $('#x_axis').outerHeight();
+            },
+            resize: function () {
+                // only resize after browser has finished resizing (i.e., don't call
+                // this function continuously while browser is resizing).
+                var that = this;
+                clearTimeout(this.timeoutID);
+                this.setSize();
+                this.timeoutID = setTimeout(function () { that.render(); }, 500);
             }
         });
         return BarChart;

@@ -1,10 +1,11 @@
 define(["marionette",
         "underscore",
+        "jquery",
         "charts/axis",
         "charts/barchart",
         "text!../../templates/charts/chart_loader.html"
     ],
-    function (Marionette, _, Axis, BarChart, ChartTemplate) {
+    function (Marionette, _, $, Axis, BarChart, ChartTemplate) {
         'use strict';
         /**
          * A class that handles display and rendering of the
@@ -32,6 +33,7 @@ define(["marionette",
                 this.app = opts.app;
                 this.dataManager = opts.dataManager;
                 this.app.vent.on('chart-type-changed', this.setChart, this);
+                this.app.vent.on('resized', this.resize, this);
             },
 
             setChart: function (data) {
@@ -63,6 +65,12 @@ define(["marionette",
                 this.xAxisRegion.show(this.xAxis);
                 this.yAxisRegion.show(this.yAxis);
                 this.chartRegion.show(new this.ChartType(this.getChartOptions()));
+                this.resize();
+            },
+            resize: function () {
+                var newHeight = $(window).height() - $('nav').height(),
+                    padding = $('#y_axis').outerHeight() - $('#y_axis').height();
+                $('#y_axis').height(newHeight - padding - $('#x_axis').outerHeight());
             },
             destroy: function () {
                 this.remove();

@@ -1,3 +1,13 @@
+.navbar-default {
+    background-image: -webkit-linear-gradient(top, #696969 0%,#3f3f3f 100%);    
+}
+.navbar-default .navbar-nav>li>a, .navbar-default .navbar-nav>li>a:hover {
+    color: #FFF;
+}
+.navbar {
+    border-radius: 0px;
+    border-width: 0px;
+}
 .container-fluid {
     padding: 0px;    
 }
@@ -27,31 +37,17 @@ pre {
     border: solid 1px #CCC;
     padding: 0px 10px 5px 5px;
     margin-top: -1px;
-    background-image: url('extras/bg.png');
     min-height: 40px;
+}
+.chart-options .column, .chart-options label {
+    padding-left: 5px;
+    padding-right: 5px;
 }
 .chart-panel {
-    min-height: 400px;
+    min-height: 200px;
+    padding: 0px;
 }
-.chart-controls {
-    background-image: url('extras/bg.png');
-    border-left: solid 1px #CCC;
-    min-height: 400px;
-}
-.variable-jar {
-    background-color: #fff;
-    border: solid 1px #CCC;
-    padding: 0px 10px 5px 5px;
-    margin-top: 10px;
-    background-image: url('extras/bg.png');
-    min-height: 40px;
-}
-#y_axis {
-    background-color: #95c4ee;
-    border: solid 1px #CCC;
-    padding: 10px;
-    margin-top: 10px;
-}
+
 #chart_area {
     min-width: 310px;
     max-width: 800px;
@@ -59,19 +55,19 @@ pre {
     overflow-y: auto;
 }
 #y_axis {
-    background-color: #95c4ee;
-    border: solid 1px #CCC;
-    padding: 10px;
-    margin-top: 10px;
-    height: 300px;
+    background-color: #EEE;
+    border-style: solid;
+    border-color: #CCC;
+    border-width: 0px 1px 0px 0px;
+    padding: 5px;
+    margin-top: 0px;
 }
 #x_axis {
     height: 50px;
-    margin: 10px 0px 20px 0px;
+    margin: 0px;
+    background-color: #EEE;
 }
-#chart_area, #y_axis {
-    height: 300px;   
-}
+
 [draggable=true] {
     -khtml-user-drag: element;
     -webkit-user-drag: element;
@@ -83,16 +79,16 @@ pre {
     border: solid 1px #CCC;
     padding: 2px 5px 2px 5px;
     display: inline-block;
-    background-color: #EFEFEF;
+    background-color: #fff;
     font-size: 13px;
 }
 [draggable=true]:hover {
-    background-color: #EEE;
+    background-color: #ccc;
 }
 [draggable=true] > i {
     font-style: normal;
     display: inline-block;
-    margin-right: 5px;
+    /*margin-right: 5px;*/
     color: #428BB6;
 }
 .highlighted {
@@ -114,12 +110,33 @@ pre {
     height: 100%;
 }
 
-.variable-jar .fa-close {
+.chart-controls {
+    background-image: url('extras/bg.png');
+    /*border-right: solid 1px #000;*/
+    min-height: 200px;
+    height: 800px;
+    padding: 10px;
+    -webkit-box-shadow: -1px 1px 8px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: -1px 1px 8px 0px rgba(0,0,0,0.75);
+    box-shadow: -1px 1px 8px 0px rgba(0,0,0,0.75);
+    z-index: 1;
+}
+.chart-controls .row {
+    margin: 3px;
+}
+.chart-controls .form-control {
+    height: 26px;
+}
+.chart-controls label {
+    font-weight: normal;
+}
+.chart-controls .fa-close {
     display: none;
 }
 .target-panel .fa-close {
-    margin-top: 3px;
+    margin-top: 2px;
 }
+
 
 
 
