@@ -136,7 +136,16 @@ pre {
 .target-panel .fa-close {
     margin-top: 2px;
 }
-
+.v-align {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #aaa;
+    text-shadow: rgb(130, 130, 130) 1px 0px 0px;
+}
 
 
 

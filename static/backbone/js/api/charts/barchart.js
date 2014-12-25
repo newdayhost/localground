@@ -8,6 +8,8 @@ define(["underscore",
         var BarChart = Backbone.View.extend({
             collection: null,
             timeoutID: null,
+            initialMessage: 'Please drag at least one numeric variable onto the y-axis ' +
+                            'and at least one other variable onto the x-axis',
             xAxis: null,
             yAxis: null,
             chartHeight: 300,
@@ -17,20 +19,24 @@ define(["underscore",
                 this.xAxis = opts.xAxis;
                 this.yAxis = opts.yAxis;
                 this.app.vent.on("variable-changed", this.render, this);
-                this.app.vent.on('form-data-changed', this.clear, this);
+                this.app.vent.on('form-data-changed', this.render, this);
                 this.app.vent.on('resized', this.resize, this);
             },
             render: function () {
-                if (!this.yAxis.collection) { return; }
-                if (this.yAxis.collection.length >= 1 &&
+                if (this.yAxis.collection && this.yAxis.collection.length >= 1 &&
                         this.xAxis.collection.length == 1) {
                     this.renderHistogram();
+                } else {
+                    this.showInitialMessage();
                 }
             },
-            clear: function () {
-                this.$el.empty();
+            showInitialMessage: function () {
+                this.setSize();
+                this.$el.height(this.chartHeight);
+                this.$el.html($('<div class="v-align"></div>').html(this.initialMessage));
             },
             renderHistogram: function () {
+                this.$el.css("height", "auto");
                 this.setSize();
                 var collection = this.dataManager.getRecords(),
                     categories = [],
