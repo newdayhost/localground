@@ -3,9 +3,10 @@ define(["marionette",
         "jquery",
         "charts/axis",
         "charts/barchart",
+        "charts/piechart",
         "text!../../templates/charts/chart_loader.html"
     ],
-    function (Marionette, _, $, Axis, BarChart, ChartTemplate) {
+    function (Marionette, _, $, Axis, BarChart, PieChart, ChartTemplate) {
         'use strict';
         /**
          * A class that handles display and rendering of the
@@ -15,6 +16,7 @@ define(["marionette",
         var ChartLoader = Marionette.LayoutView.extend({
             app: null,
             dataManager: null,
+            activeChart: null,
             ChartType: BarChart,
             template: function () {
                 return _.template(ChartTemplate);
@@ -38,13 +40,21 @@ define(["marionette",
 
             setChart: function (data) {
                 if (data.chartType == "bar") {
+                    console.log("bar chart");
                     this.ChartType = BarChart;
                 } else if (data.chartType == "scatter") {
+                    console.log("scatter plot");
                     this.ChartType = BarChart;
                 } else if (data.chartType == "pie") {
-                    this.ChartType = BarChart;
+                    console.log("pie chart");
+                    this.ChartType = PieChart;
                 }
-                this.onShow();
+                if (this.activeChart) {
+                    this.activeChart.destroyChart();
+                }
+                this.activeChart = new this.ChartType(this.getChartOptions());
+                this.chartRegion.show(this.activeChart);
+                //this.onShow();
             },
 
             getChartOptions: function () {
@@ -62,9 +72,13 @@ define(["marionette",
                 };
                 this.xAxis = new Axis(_.extend(opts, { axisType: 'x' }));
                 this.yAxis = new Axis(_.extend(opts, { axisType: 'y' }));
+                if (this.activeChart) {
+                    this.activeChart.destroyChart();
+                }
+                this.activeChart = new this.ChartType(this.getChartOptions());
                 this.xAxisRegion.show(this.xAxis);
                 this.yAxisRegion.show(this.yAxis);
-                this.chartRegion.show(new this.ChartType(this.getChartOptions()));
+                this.chartRegion.show(this.activeChart);
                 this.resize();
             },
             resize: function () {

@@ -141,10 +141,9 @@ pre {
     top: 50%;
     transform: translateY(-50%);
     text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    color: #aaa;
-    text-shadow: rgb(130, 130, 130) 1px 0px 0px;
+    font-size: 18px;
+    color: #444;
+    text-shadow: #fff 1px 1px 0;
 }
 
 

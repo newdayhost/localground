@@ -40,8 +40,9 @@ define(["marionette",
                 if (e) { e.preventDefault(); }
             },
             notifyChartChanged: function (e) {
-                this.app.vent.trigger('chart-changed', {
-                    id: this.$el.find('#forms_menu').val()
+                console.log('chart type changed');
+                this.app.vent.trigger('chart-type-changed', {
+                    chartType: this.$el.find('#charts_menu').val()
                 });
                 if (e) { e.preventDefault(); }
             },
