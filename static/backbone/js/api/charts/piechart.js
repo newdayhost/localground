@@ -1,58 +1,53 @@
-define(["underscore",
-        "charts/chart",
+define(["charts/chart",
         "highcharts"
     ],
-    function (_, Chart) {
+    function (Chart) {
         "use strict";
+        /**
+         * The PieChart's job is to render a pie chart.
+         */
         var PieChart = Chart.extend({
-            initialMessage: 'Please drag at least one numeric variable onto the y-axis ' +
-                            'and at least one other variable onto the x-axis',
+            initialMessage: 'Please drag one (and only one) variable onto the x-axis',
             xAxis: null,
-            yAxis: null,
+            seriesName: null,
             initialize: function (opts) {
                 Chart.prototype.initialize.apply(this, arguments);
-                console.log('pie chart!!!!!');
                 this.xAxis = opts.xAxis;
-                this.yAxis = opts.yAxis;
                 this.render();
             },
             render: function () {
-                console.log('pie chart!');
-                this.renderChart();
-                /*
-                if (this.yAxis.collection && this.yAxis.collection.length >= 1 &&
-                        this.xAxis.collection.length == 1) {
+                if (this.xAxis.collection.length == 1) {
                     this.renderChart();
                 } else {
                     this.destroyChart();
                     this.showInitialMessage();
-                }*/
+                }
             },
             transformData: function () {
                 var collection = this.dataManager.getRecords(),
-                    that = this,
-                    i = 0;
-                this.categories = [];
+                    key = this.xAxis.collection.at(0).get("col_name"),
+                    lookup = {};
+                this.seriesName = this.xAxis.collection.at(0).get("col_alias");
                 this.seriesData = [];
-                this.yAxis.collection.each(function (field) {
-                    that.seriesData.push({
-                        name: field.get("col_alias"),
-                        data: []
-                    });
-                });
+
+                // loop that counts the number of times a particular
+                // value appears in the collection:
                 collection.each(function (record) {
-                    that.categories.push(record.get(that.xAxis.collection.at(0).get("col_name")));
-                    i = 0;
-                    that.yAxis.collection.each(function (field) {
-                        that.seriesData[i].data.push(record.get(field.get("col_name")));
-                        ++i;
-                    });
+                    if (lookup[record.get(key)] == null) {
+                        lookup[record.get(key)] = 0;
+                    }
+                    lookup[record.get(key)] += 1;
                 });
+
+                // converts to form that is useable for highcharts
+                for (key in lookup) {
+                    this.seriesData.push([ key, lookup[key]]);
+                }
             },
             renderChart: function () {
                 this.$el.css("height", "auto");
                 this.setSize();
-                //this.transformData();
+                this.transformData();
                 var chartOpts = {
                     chart: {
                         height: this.chartHeight
@@ -75,15 +70,10 @@ define(["underscore",
                     },
                     series: [{
                         type: 'pie',
-                        name: 'series 1',
-                        data: [
-                            ['Firefox', 125],
-                            ['IE', 70],
-                            ['Chrome', 5]
-                        ]
+                        name: this.seriesName,
+                        data: this.seriesData
                     }]
                 };
-                //_.extend(chartOpts, { series: this.seriesData });
                 this.$el.highcharts(chartOpts);
             }
         });

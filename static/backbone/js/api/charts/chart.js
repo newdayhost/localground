@@ -4,6 +4,12 @@ define(["jquery",
     ],
     function ($, Backbone) {
         "use strict";
+        /**
+         * The Chart's job is to serve as an abstract base class for
+         * rendering a chart. All charts should inherit from this class. It
+         * controls some generic functionality around resizing, and
+         * adding / removing variables and data.
+         */
         var Chart = Backbone.View.extend({
             collection: null,
             timeoutID: null,
