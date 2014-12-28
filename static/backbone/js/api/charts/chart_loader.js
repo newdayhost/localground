@@ -75,7 +75,10 @@ define(["marionette",
                     //hide the y-axis for a pie chart:
                     this.yAxisRegion.$el.hide();
                 }
-                this.chartRegion.show(this.activeChart);
+                //only show if the charRegion has already been rendered:
+                if (this.chartRegion.$el.get(0)) {
+                    this.chartRegion.show(this.activeChart);
+                }
             },
             onShow: function () {
                 this.xAxisRegion.show(this.xAxis);
