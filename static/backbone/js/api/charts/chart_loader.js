@@ -4,9 +4,10 @@ define(["marionette",
         "charts/axis",
         "charts/barchart",
         "charts/piechart",
+        "charts/scatterplot",
         "text!../../templates/charts/chart_loader.html"
     ],
-    function (Marionette, _, $, Axis, BarChart, PieChart, ChartTemplate) {
+    function (Marionette, _, $, Axis, BarChart, PieChart, ScatterPlot, ChartTemplate) {
         'use strict';
         /**
          * The ChartLoader's job is to initialize the x-axis, y-axis,
@@ -67,7 +68,14 @@ define(["marionette",
                     // show the y-axis for a bar chart:
                     this.yAxisRegion.$el.show();
                 } else if (data.chartType == "scatter") {
-                    alert("figure out how to make a scatter plot!");
+                    this.activeChart = new ScatterPlot(
+                        _.extend(opts, {
+                            xAxis: this.xAxis,
+                            yAxis: this.yAxis
+                        })
+                    );
+                    // show the y-axis for a bar chart:
+                    this.yAxisRegion.$el.show();
                 } else if (data.chartType == "pie") {
                     this.activeChart = new PieChart(
                         _.extend(opts, { xAxis: this.xAxis })
