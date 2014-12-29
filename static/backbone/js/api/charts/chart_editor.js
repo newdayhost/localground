@@ -11,7 +11,13 @@ define(["marionette",
     ],
     function (Marionette, Backbone, _, $, appUtilities, DataManager, Variables, ChartLoader, ChartOptions) {
         "use strict";
-
+        /**
+         * The ChartEditor is the base class for allowing the user to create new
+         * charts. It controls the various regions of the application, and it
+         * initializes the subregions and other components of the application,
+         * including the Variables, ChartLoader, and ChartOptions views, and the
+         * DataManager (which keeps track of the data that the charts interact with).
+         */
         var ChartEditor = Marionette.Application.extend(_.extend(appUtilities, {
             navigate: function (route, options) {
                 options = options || {};
@@ -26,6 +32,7 @@ define(["marionette",
                     chartLoaderRegion: "#chart_loader",
                     variableRegion: "#variables"
                 });
+
                 this.on("start", function () {
                     if (Backbone.history) {
                         Backbone.history.start();

@@ -1,17 +1,21 @@
-define(["jquery",
-        "marionette",
+define(["marionette",
         "charts/variable",
         "collections/fields"
     ],
-    function ($, Marionette, Variable, Fields) {
+    function (Marionette, Variable, Fields) {
         "use strict";
+        /**
+         * The Axis class's job is to:
+         * 1) detect when a new Field has been added to or removed from it, and
+         * 2) notify the application every time its Field collection changes
+         */
         var Axis = Marionette.CollectionView.extend({
             app: null,
             dataManager: null,
             collection: null,
             childView: Variable,
-            className: 'fill',
             axisType: null,
+            className: 'fill',
             events: {
                 'drop': 'handleDrop',
                 'dragover ': 'ignore'

@@ -4,11 +4,10 @@ define(["marionette",
     function (Marionette, Variable) {
         "use strict";
         /**
-         * The Variables Class's job is to display the user
-         * the available variables, given the form selection.
-         *
-         * Listens for:
-         *  - 'form-data-changed'
+         * The Variables class's job is to display the available variables,
+         * given the user's table selection. The rendering of each variable
+         * is delegated to the Variable class. The only thing that this view
+         * needs to do is listen for updates to the collection.
          */
         var Variables = Marionette.CollectionView.extend({
             app: null,

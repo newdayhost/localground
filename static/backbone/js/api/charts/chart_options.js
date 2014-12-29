@@ -6,6 +6,17 @@ define(["marionette",
     ],
     function (Marionette, _, $, Forms, OptionsTemplate) {
         "use strict";
+        /**
+         * The ChartOpts class's job is to populate the forms and chart types
+         * dropdown list, and listen for user-generated events on these dropdown
+         * lists.
+         *
+         * The forms_menu is populated by querying the Data API (the Forms table),
+         * and the charts_menu is populated manually from the template
+         * (located at /static/backbone/js/templates/charts/options.html.
+         * When the user selects a different form or chart, this view notifies
+         * the application.
+         */
         var ChartOpts = Marionette.ItemView.extend({
             template: _.template(OptionsTemplate),
             formItemTemplate: _.template('<option value="<%= id %>"><%= name %></option>'),

@@ -3,6 +3,12 @@ define(["collections/fields",
     ],
     function (Fields, Records) {
         'use strict';
+        /**
+         * The DataManager class's job is to load data, store it in
+         * temporary memory, and keep track of which data set the user
+         * is currently working on. It also has a few convenience classes
+         * to access particular data elements.
+         */
         var DataManager = function (app) {
             this.formData = null;
             this.activeFormID = null;

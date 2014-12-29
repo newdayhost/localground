@@ -5,6 +5,11 @@ define(["marionette",
     ],
     function (Marionette, _, VariableTemplate) {
         "use strict";
+        /**
+         * The Variable's job is to provide a handle to drag
+         * each column / field to either the x- or y-axis. Typically
+         * initialized by the Variables CollectionView.
+         */
         var Variable = Marionette.ItemView.extend({
             template: _.template(VariableTemplate),
             tagName: "span",
@@ -13,16 +18,19 @@ define(["marionette",
             },
             events: {
                 'click .fa-close': 'detach',
-                'dragstart .draggable': 'highlight'
+                'dragstart .draggable': 'highlight',
+                'dragend .draggable': 'unhighlight'
             },
             highlight: function (e) {
                 $(e.target).addClass("highlighted");
                 event.dataTransfer.setData("text/plain", this.model.get("id"));
             },
+            unhighlight: function (e) {
+                $(e.target).removeClass("highlighted");
+            },
             detach: function (e) {
-                console.log('remove');
                 this.trigger("detach");
-                //this.remove();
+                e.preventDefault();
             }
         });
         return Variable;

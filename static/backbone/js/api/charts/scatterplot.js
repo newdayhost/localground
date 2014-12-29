@@ -5,7 +5,7 @@ define(["underscore",
     function (_, Chart) {
         "use strict";
         /**
-         * The BarChart's job is to render a bar chart.
+         * The ScatterPlot's job is to render a scatterplot.
          */
         var ScatterPlot = Chart.extend({
             initialMessage: 'Please drag at least one numeric variable onto the y-axis ' +
