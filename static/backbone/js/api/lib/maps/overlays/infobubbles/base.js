@@ -119,12 +119,13 @@ define(['jquery',
                 e.preventDefault();
             },
             renderEditContent: function () {
+                console.log(JSON.stringify(this.model.updateSchema));
                 var template = this.getTemplate("InfoBubbleTemplate"),
                     ModelForm = Form.extend({
                         schema: this.model.updateSchema
                     }),
                     context = this.getContext(this.model);
-                console.log(this.model.updateSchema);
+                //console.log(this.model.updateSchema);
                 context.mode = 'edit';
                 this.setElement($(template(context)));
                 this.form = new ModelForm({
