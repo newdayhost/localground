@@ -21,7 +21,8 @@ define(["marionette",
             events: {
                 'click .check-all': 'toggleShowAll',
                 'click .cb-layer-item': 'toggleShow',
-                'click .zoom-to-extent': 'zoomToExtent'
+                'click .zoom-to-extent': 'zoomToExtent',
+                'click .edit-layer': 'editLayer'
             },
 
             initialize: function (opts) {
@@ -65,6 +66,10 @@ define(["marionette",
             zoomToExtent: function (e) {
                 this.model.trigger("zoom-to-layer");
                 e.preventDefault();
+            },
+
+            editLayer: function () {
+                this.app.vent.trigger('show-layer-editor', this.model);
             },
 
             saveState: function () {

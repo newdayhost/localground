@@ -99,6 +99,15 @@ define(["jquery"],
                 }
                 return cookieValue;
             },
+            generateSlug: function () {
+                var slug = "",
+                    possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+                    i = 0;
+                for (i = 0; i < 10; i++) {
+                    slug += possible.charAt(Math.floor(Math.random() * possible.length));
+                }
+                return slug;
+            },
             showLoadingMessage: function () {
                 $('#loading_message').show();
             },
