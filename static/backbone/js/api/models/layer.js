@@ -1,4 +1,4 @@
-define(["models/base", "views/maps/overlays/symbol"], function (Base, Symbol) {
+define(["underscore", "models/base", "views/maps/overlays/symbol"], function (_, Base, Symbol) {
     "use strict";
     /**
      * A Backbone Model class for the Photo datatype.
@@ -18,16 +18,24 @@ define(["models/base", "views/maps/overlays/symbol"], function (Base, Symbol) {
         basic: false,
         initialize: function (data, opts) {
 			Base.prototype.initialize.apply(this, arguments);
-            this.buildSymbolMap();
+            if (!_.isUndefined(this.get("id"))) {
+                this.buildSymbolMap();
+            }
 		},
 		validate: function (attrs) {
-            //if symbols is an array or it's null or it's empty, raise an exception:
+            this.parseSymbolsFromString(attrs);
             if (!_.isArray(attrs.symbols) || _.isNull(attrs.symbols) || attrs.symbols.length == 0) {
                 return 'Layer.symbols must be a JSON array with at least one entry';
             }
             //if valid, returns null;
             return null;
 		},
+
+        parseSymbolsFromString: function (attrs) {
+            if (!_.isNull(attrs.symbols) && !_.isArray(attrs.symbols) && !_.isArray(attrs.symbols)) {
+                attrs.symbols = JSON.parse(attrs.symbols);
+            }
+        },
         getKey: function () {
             if (this.collection) {
                 return this.collection.key;

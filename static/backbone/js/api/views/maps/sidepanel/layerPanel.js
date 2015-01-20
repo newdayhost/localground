@@ -40,10 +40,16 @@ define(["marionette",
                 this.opts = opts;
                 this.app.vent.on("adjust-layout", this.resize.bind(this));
                 this.app.vent.on("show-layer-list", this.showLayerList.bind(this));
+                this.app.vent.on("show-layer-editor", this.showLayerEditor.bind(this));
             },
 
-            showLayerEditor: function () {
-                this.layerListRegion.show(new LayerEditor(this.opts));
+            showLayerEditor: function (model) {
+                console.log(model);
+                var opts = this.opts;
+                if (!_.isUndefined(model)) {
+                    _.extend(opts, {model: model});
+                }
+                this.layerListRegion.show(new LayerEditor(opts));
             },
 
             showLayerList: function () {
