@@ -43,11 +43,10 @@ define(["marionette",
                 this.app.vent.on("show-layer-editor", this.showLayerEditor.bind(this));
             },
 
-            showLayerEditor: function (model) {
-                console.log(model);
-                var opts = this.opts;
-                if (!_.isUndefined(model)) {
-                    _.extend(opts, {model: model});
+            showLayerEditor: function (data) {
+                var opts = _.clone(this.opts);
+                if (!_.isUndefined(data.model)) {
+                    _.extend(opts, {model: data.model});
                 }
                 this.layerListRegion.show(new LayerEditor(opts));
             },

@@ -69,7 +69,7 @@ define(["marionette",
             },
 
             editLayer: function () {
-                this.app.vent.trigger('show-layer-editor', this.model);
+                this.app.vent.trigger('show-layer-editor', { model: this.model });
             },
 
             saveState: function () {
