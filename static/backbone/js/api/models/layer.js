@@ -22,6 +22,17 @@ define(["underscore", "models/base", "views/maps/overlays/symbol"], function (_,
                 this.buildSymbolMap();
             }
 		},
+        //
+        toJSON: function () {
+            // ensure that the geometry object is serialized before it
+            // gets sent to the server:
+            var json = Base.prototype.toJSON.call(this);
+            if (json.symbols != null) {
+                json.symbols = JSON.stringify(json.symbols);
+            }
+            //console.log(json);
+            return json;
+        },
 		validate: function (attrs) {
             this.parseSymbolsFromString(attrs);
             if (!_.isArray(attrs.symbols) || _.isNull(attrs.symbols) || attrs.symbols.length == 0) {
