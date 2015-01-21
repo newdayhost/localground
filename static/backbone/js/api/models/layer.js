@@ -21,8 +21,10 @@ define(["underscore", "models/base", "views/maps/overlays/symbol"], function (_,
             if (!_.isUndefined(this.get("id"))) {
                 this.buildSymbolMap();
             }
+            this.on("change:symbols", function () {
+                this.buildSymbolMap();
+            });
 		},
-        //
         toJSON: function () {
             // ensure that the geometry object is serialized before it
             // gets sent to the server:
@@ -30,7 +32,6 @@ define(["underscore", "models/base", "views/maps/overlays/symbol"], function (_,
             if (json.symbols != null) {
                 json.symbols = JSON.stringify(json.symbols);
             }
-            //console.log(json);
             return json;
         },
 		validate: function (attrs) {
@@ -59,13 +60,12 @@ define(["underscore", "models/base", "views/maps/overlays/symbol"], function (_,
             if (this.get("symbols").length == 1) {
                 this.basic = true;
             }
-            if (!this.symbolMap) {
-                this.symbolMap = {};
-                var i = 0,
-                    symbolList = this.get("symbols");
-                for (i = 0; i < symbolList.length; i++) {
-                    this.symbolMap[symbolList[i].rule] = new Symbol(symbolList[i]);
-                }
+            this.symbolMap = {};
+            var i = 0,
+                symbolList = this.get("symbols");
+            //console.log(this.get("name"), symbolList);
+            for (i = 0; i < symbolList.length; i++) {
+                this.symbolMap[symbolList[i].rule] = new Symbol(symbolList[i]);
             }
         },
 
