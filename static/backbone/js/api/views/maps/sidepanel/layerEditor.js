@@ -1,15 +1,16 @@
 define(["underscore",
         "jquery",
         "marionette",
+        "backbone",
         "form",
         "models/layer",
         "text!" + templateDir + "/sidepanel/layerEditor.html",
         "bootstrap-form-templates"
         ],
-    function (_, $, Marionette, Form, Layer, LayerEditorTemplate) {
+    function (_, $, Marionette, Backbone, Form, Layer, LayerEditorTemplate) {
         'use strict';
 
-        var LayerEditor = Marionette.ItemView.extend({
+        var LayerEditor = Marionette.View.extend({
 
             events: {
                 'click #marker_cancel': 'hide',
@@ -23,20 +24,30 @@ define(["underscore",
                 if (_.isUndefined(this.model)) {
                     this.model = new Layer();
                 }
+                this.onRender();
             },
 
             onRender: function () {
-                //this.$el.html(this.template());
-                var ModelForm = Form.extend({
-                    schema: {
-                        name: { type: "Text", title: "Name" },
-                        description: { type: "Text", title: "Description" },
-                        //tags: { type: "Text", title: "Tags", help: "Tag your layer here" },
-                        source: { type: "Text", title: "Source", help: "List of the underlying data sources" },
-                        symbols: { type: "TextArea", title: "Symbols", help: "Add your symbol markup here" }
-                    }
-                });
-                this.$el.html(this.template());
+                var JSONEditor = Backbone.Form.editors.TextArea.extend({
+                        render: function () {
+                            this.setValue(JSON.stringify(this.value));
+                            return this;
+                        },
+                        getValue: function () {
+                            return JSON.parse(this.$el.val());
+                        }
+                    }),
+                    ModelForm = Form.extend({
+                        schema: {
+                            name: { type: "Text", title: "Name" },
+                            description: { type: "Text", title: "Description" },
+                            //tags: { type: "Text", title: "Tags", help: "Tag your layer here" },
+                            source: { type: "Text", title: "Source", help: "List of the underlying data sources" },
+                            symbols: { type: JSONEditor, title: "Symbols", help: "Add your symbol markup here" }
+                        }
+                    }),
+                    context = { saveMessage: _.isUndefined(this.model.get("id")) ? "Add" : "Update" };
+                this.$el.html(this.template(context));
                 this.form = new ModelForm({
                     model: this.model
                 });

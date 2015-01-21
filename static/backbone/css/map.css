@@ -33,7 +33,7 @@ body { overflow: hidden; }
 .collection-header > h4, .layer-header > h4 {
 	display: inline-block;
 }
-.collection-header > .fa-search, .layer-header > .fa-search  {
+.collection-header > .fa-search  {
 	margin: 10px 3px 0px 0px;
 	color: #666;
 }
@@ -41,7 +41,7 @@ body { overflow: hidden; }
 	margin-top: 20px;
 	margin-bottom: 2px;
 }
-.layer-header > .fa-search  {
+.layer-header > .fa-search, .layer-header > .fa-edit  {
 	margin: 20px 3px 0px 0px;
 	color: #999;
 }
