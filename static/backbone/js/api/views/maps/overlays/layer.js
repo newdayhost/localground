@@ -22,7 +22,8 @@ define(['marionette',
             modelEvents: {
                 'change:isShowingOnMap': 'redraw',
                 'symbol-change': 'renderSymbol',
-                'zoom-to-layer': 'zoomToExtent'
+                'zoom-to-layer': 'zoomToExtent',
+                'change:symbols': 'applyNewSymbol'
             },
             initialize: function (opts) {
                 this.app = opts.app;
@@ -39,6 +40,17 @@ define(['marionette',
                 _.each(this.model.getSymbols(), function (symbol) {
                     that.clear(symbol);
                 });
+            },
+            applyNewSymbol: function () {
+                console.log('applyNewSymbol...');
+                /*var that = this;
+                _.each(this.model.getSymbols(), function (symbol) {
+                    //clear out old overlays and models
+                    that.clear(symbol);
+                    _.each(_.values(that.dataManager.collections), function (collection) {
+                        that.addMatchingModels(symbol, collection);
+                    });
+                });*/
             },
             redraw: function () {
                 if (this.model.get("isShowingOnMap")) {

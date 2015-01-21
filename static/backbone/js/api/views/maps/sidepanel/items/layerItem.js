@@ -18,6 +18,9 @@ define(["marionette",
             model: null,
             isShowingOnMap: false,
             template: _.template(LayerEntry),
+            modelEvents: {
+                'change:symbols': 'render'
+            },
             events: {
                 'click .check-all': 'toggleShowAll',
                 'click .cb-layer-item': 'toggleShow',
@@ -26,6 +29,7 @@ define(["marionette",
             },
 
             initialize: function (opts) {
+                //console.log(opts.model.get("name"));
                 this.model = opts.model;
                 this.app = opts.app;
                 this.id = 'sidebar-' + this.model.getKey() + "-" + this.model.get('id');
