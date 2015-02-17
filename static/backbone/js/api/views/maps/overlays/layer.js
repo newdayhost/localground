@@ -36,21 +36,24 @@ define(['marionette',
                 this.app.vent.on("filter-applied", this.redraw.bind(this));
             },
             onBeforeDestroy: function () {
+                this.destroyGoogleMapOverlays();
+            },
+            destroyGoogleMapOverlays: function () {
                 var that = this;
                 _.each(this.model.getSymbols(), function (symbol) {
                     that.clear(symbol);
                 });
+                this.overlayMap = {};
             },
             applyNewSymbol: function () {
-                console.log('applyNewSymbol...');
-                /*var that = this;
-                _.each(this.model.getSymbols(), function (symbol) {
-                    //clear out old overlays and models
-                    that.clear(symbol);
-                    _.each(_.values(that.dataManager.collections), function (collection) {
-                        that.addMatchingModels(symbol, collection);
-                    });
-                });*/
+                //destroy current map overlays:
+                this.destroyGoogleMapOverlays();
+
+                //re-apply the layer rules to the available data:
+                this.parseLayerItem();
+
+                //and render:
+                this.redraw();
             },
             redraw: function () {
                 if (this.model.get("isShowingOnMap")) {

@@ -45,7 +45,11 @@ define(["underscore", "models/base", "views/maps/overlays/symbol"], function (_,
 
         parseSymbolsFromString: function (attrs) {
             if (!_.isNull(attrs.symbols) && !_.isArray(attrs.symbols) && !_.isArray(attrs.symbols)) {
-                attrs.symbols = JSON.parse(attrs.symbols);
+                try {
+                    attrs.symbols = JSON.parse(attrs.symbols);
+                } catch (e) {
+                    //ignore
+                }
             }
         },
         getKey: function () {

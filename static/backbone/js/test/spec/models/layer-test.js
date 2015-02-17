@@ -11,7 +11,7 @@ define(["views/maps/overlays/symbol", "../../../test/spec-helper"],
                 expect(layer.get("isVisible")).toBeFalsy();
             });
 
-            it("Validates any updat to \"symbols\" to ensure that it is an array", function () {
+            it("Validates any update to \"symbols\" to ensure that it is an array", function () {
                 var that = this,
                     validate = function (val, expectError) {
                         var layer = that.layers.at(0),

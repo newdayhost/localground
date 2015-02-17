@@ -1,9 +1,9 @@
 define([
-    "jquery",
     "views/maps/sidepanel/layerPanel",
+    "collections/layers",
     "../../../test/spec-helper"
 ],
-    function ($, LayerPanel) {
+    function (LayerPanel, Layers) {
         'use strict';
 
         describe("LayerPanel: Initializes and renders child views when data added and removed", function () {
@@ -28,7 +28,10 @@ define([
             });
 
             it("Doesn't throw an exception on show event", function () {
-                var layerPanel = new LayerPanel({ app: this.app });
+                var layerPanel = new LayerPanel({
+                    app: this.app,
+                    selectedLayers: new Layers()
+                });
                 layerPanel.render();
                 expect(function () {
                     layerPanel.onShow();
@@ -37,7 +40,10 @@ define([
 
             it("Resizes panel on show event", function () {
                 spyOn(LayerPanel.prototype, "resize");
-                var layerPanel = new LayerPanel({ app: this.app });
+                var layerPanel = new LayerPanel({
+                    app: this.app,
+                    selectedLayers: new Layers()
+                });
                 layerPanel.render();
                 layerPanel.onShow();
                 expect(layerPanel.resize).toHaveBeenCalled();
