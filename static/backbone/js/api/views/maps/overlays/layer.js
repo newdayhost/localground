@@ -55,17 +55,6 @@ define(['marionette',
                 //and render:
                 this.redraw();
             },
-            applyNewSymbol: function () {
-                console.log('applyNewSymbol...');
-                /*var that = this;
-                _.each(this.model.getSymbols(), function (symbol) {
-                    //clear out old overlays and models
-                    that.clear(symbol);
-                    _.each(_.values(that.dataManager.collections), function (collection) {
-                        that.addMatchingModels(symbol, collection);
-                    });
-                });*/
-            },
             redraw: function () {
                 if (this.model.get("isShowingOnMap")) {
                     this.model.showSymbols();
