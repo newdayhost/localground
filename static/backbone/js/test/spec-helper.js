@@ -4,7 +4,6 @@ define(
         "jquery",
         "lib/appUtilities",
         "lib/maps/data/dataManager",
-        "lib/maps/data/snapshotLoader",
         "collections/projects",
         "collections/photos",
         "collections/audio",
@@ -20,7 +19,7 @@ define(
         "models/mapimage",
         "models/layer"
     ],
-    function (Backbone, $, appUtilities, DataManager, SnapshotLoader,
+    function (Backbone, $, appUtilities, DataManager,
               Projects, Photos, AudioFiles, MapImages, Markers, Records, Layers,
               Project, Photo, Marker, Audio, Record, MapImage, Layer) {
         'use strict';
@@ -58,18 +57,21 @@ define(
                 new Record({id: 3, team_name: "Red team", tags: 'coffee shop', worm_count: 2, project_id: 2, overlay_type: "record" })
             ], { 'url': 'dummy/url' });
             this.layers = new Layers([
-                new Layer({id: 1, name: "worms", overlay_type: "layer", symbols: [
+                new Layer({id: 1, name: "worms", overlay_type: "layer",
+                    description: "worms legend", source: "photos, audio", symbols: [
                     { color: "#7075FF", width: 30, rule: "worms > 0", title: "At least 1 worm" },
                     { color: "#F011D9", width: 30, rule: "worms = 0", title: "No worms" }
                 ]}),
-                new Layer({id: 2, name: "pets", overlay_type: "layer", symbols: [
+                new Layer({id: 2, name: "pets", overlay_type: "layer",
+                    description: "pets legend", source: "photos, audio", symbols: [
                     { color: "#F00", width: 20, rule: "tags contains cat", title: "Cats" },
                     { color: "#0F0", width: 20, rule: "tags contains dog", title: "Dogs" }
                 ]}),
-                new Layer({id: 3, name: "frogs", overlay_type: "layer", symbols: [
+                new Layer({id: 3, name: "frogs", overlay_type: "layer",
+                    description: "frogs legend", source: "photos, audio", symbols: [
                     { color: "#00F", width: 20, rule: "tags contains frog", title: "Frogs" }
                 ]})
-            ]);
+            ], { 'url': 'dummy/url' });
 
             this.dataDictionary = {
                 records: this.records,

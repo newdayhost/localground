@@ -70,7 +70,9 @@ define(["underscore",
                 //save to database:
                 this.model.save();      //does database commit
                 this.app.vent.trigger('show-layer-list');
-                e.preventDefault();
+                if (!_.isUndefined(e)) {
+                    e.preventDefault();
+                }
             },
 
             ignore: function (e) {
