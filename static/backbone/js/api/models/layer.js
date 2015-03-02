@@ -52,6 +52,7 @@ define(["underscore", "models/base", "views/maps/overlays/symbol"], function (_,
                 }
             }
         },
+
         getKey: function () {
             if (this.collection) {
                 return this.collection.key;
