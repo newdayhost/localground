@@ -21,6 +21,7 @@ require(['boot'], function () {
         'spec/views/layer-list-test.js',
         'spec/views/symbol-test.js',
         'spec/views/layer-test.js',
+        'spec/views/layer-editor-test.js',
         'spec/views/layer-item-test.js',
         'spec/views/caption-test.js',
         'spec/views/fullscreenCtrl-test.js'

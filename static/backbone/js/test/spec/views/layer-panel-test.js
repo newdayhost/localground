@@ -49,4 +49,23 @@ define([
                 expect(layerPanel.resize).toHaveBeenCalled();
             });
         });
+
+        describe("LayerPanel: Event Handlers are working", function () {
+
+            it("Listens for the 'Add Layer' button click", function () {
+                spyOn(LayerPanel.prototype, "showLayerEditor");
+                var layerPanel = new LayerPanel({ app: this.app });
+                layerPanel.render();
+                layerPanel.$el.find('#add-layer').click();
+                expect(layerPanel.showLayerEditor).toHaveBeenCalled();
+            });
+
+            it("Listens for the global 'show-layer-editor' event and responds", function () {
+                spyOn(LayerPanel.prototype, "showLayerEditor");
+                var layerPanel = new LayerPanel({ app: this.app });
+                layerPanel.render();
+                this.app.vent.trigger("show-layer-editor");
+                expect(layerPanel.showLayerEditor).toHaveBeenCalled();
+            });
+        });
     });
