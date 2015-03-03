@@ -68,7 +68,7 @@ define(["underscore",
                     this.model.set("project_id", this.app.getActiveProjectID());
                 }
                 //save to database:
-                this.model.save();      //does database commit
+                this.model.save(); //does database commit
                 this.app.vent.trigger('show-layer-list');
                 if (!_.isUndefined(e)) {
                     e.preventDefault();
@@ -76,7 +76,9 @@ define(["underscore",
             },
 
             ignore: function (e) {
-                e.stopPropagation();
+                if (!_.isUndefined(e)) {
+                    e.preventDefault();
+                }
             },
 
             hide: function () {
