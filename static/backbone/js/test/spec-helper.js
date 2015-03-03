@@ -28,8 +28,9 @@ define(
             $(document.body).append($map_container);
 
             //SAFETY MEASURE: makes sure that nothing gets committed to the database.
-            spyOn($, 'ajax').and.callFake(function () {});
-
+            spyOn($, 'ajax').and.callFake(function () {
+                console.log("AJAX call intercepted.");
+            });
 
             /**
              * Adds some dummy data for testing convenience.

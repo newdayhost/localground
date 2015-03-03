@@ -6,7 +6,10 @@ define(["models/layer", "collections/base"], function (Layer, Base) {
     var Layers = Base.extend({
         model: Layer,
         name: 'Layers',
-        url: '/api/0/layers/'
+        url: '/api/0/layers/',
+        comparator: function (layer) {
+            return -layer.get("id");
+        }
     });
     return Layers;
 });

@@ -31,7 +31,17 @@ define(["marionette",
                 this.collection = new Layers();
                 this.childViewOptions.app = this.app;
                 this.collection.fetch();
+                this.addEventListeners();
                 this.restoreState();
+            },
+
+            addEventListeners: function () {
+                this.app.vent.on('add-layer-to-menu', this.addModel.bind(this));
+            },
+
+            addModel: function (model) {
+                this.collection.add(model);
+                this.toggleItem(model.get("id"), true);
             },
 
             toggleCheckbox: function (e) {
@@ -39,9 +49,7 @@ define(["marionette",
                     checked = input.is(':checked');
                 this.toggleItem(input.val(), checked);
 
-                if (e.stopPropagation) {
-                    e.stopPropagation();
-                }
+                e.stopPropagation();
             },
 
             triggerToggleCheckbox: function (e) {

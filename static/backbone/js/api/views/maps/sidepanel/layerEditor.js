@@ -56,10 +56,36 @@ define(["underscore",
             },
 
             saveForm: function (e) {
-                var isNewModel = false;
                 //does validation
                 this.form.commit();
 
+                //if the model is new, add additional attributes:
+                if (this.model.isNew()) {
+                    this.addNewModelData();
+                }
+
+                //do database commit:
+                var isNew = this.model.isNew(),
+                    that = this;
+                this.model.save(null, {
+                    success: function () {
+                        //if the model is brand new, add it to the layers menu and
+                        //turn it on.
+                        if (isNew) {
+                            that.app.vent.trigger("add-layer-to-menu", that.model);
+                        }
+                    }
+                });
+
+                //fire post-save event handlers:
+                this.app.vent.trigger('show-layer-list');
+
+                if (!_.isUndefined(e)) {
+                    e.preventDefault();
+                }
+            },
+
+            addNewModelData: function () {
                 //add extras:
                 //todo: slug doesn't make sense in this context. Remove.
                 if (_.isUndefined(this.model.get("slug"))) {
@@ -67,16 +93,9 @@ define(["underscore",
                 }
                 if (_.isUndefined(this.model.get("project_id"))) {
                     this.model.set("project_id", this.app.getActiveProjectID());
-                    isNewModel = true;
                 }
-                //save to database:
-                this.model.save(); //does database commit
-                this.app.vent.trigger('show-layer-list');
-                if (isNewModel) {
-                    this.app.vent.trigger("add-layer", this.model);
-                }
-                if (!_.isUndefined(e)) {
-                    e.preventDefault();
+                if (_.isUndefined(this.model.get("overlay_type"))) {
+                    this.model.set("overlay_type", "layer");
                 }
             },
 
