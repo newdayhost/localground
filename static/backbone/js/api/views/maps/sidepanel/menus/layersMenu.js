@@ -41,7 +41,10 @@ define(["marionette",
 
             addModel: function (model) {
                 this.collection.add(model);
+                // add the layer to the right-hand layer panel and 
+                // make sure it's showing on the map
                 this.toggleItem(model.get("id"), true);
+                model.set("isShowingOnMap", true);
             },
 
             toggleCheckbox: function (e) {
@@ -49,7 +52,9 @@ define(["marionette",
                     checked = input.is(':checked');
                 this.toggleItem(input.val(), checked);
 
-                e.stopPropagation();
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                }
             },
 
             triggerToggleCheckbox: function (e) {

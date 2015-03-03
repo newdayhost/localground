@@ -22,6 +22,14 @@ define(["marionette",
                 this.listenTo(this.collection, 'remove', this._onCollectionRemove);
                 this.listenTo(this.collection, 'reset', this.render);
             },
+            //WARNING: THIS PROBABLY ISN'T THE THING TO DO:
+            onAddChild: function (childView) {
+                if (childView.model.get("isShowingOnMap")) {
+                    //trigger it again:
+                    console.log("triggering");
+                    childView.model.set("isShowingOnMap", true);
+                }
+            },
 
             addToCollection: function (model) {
                 this.collection.add(model);
