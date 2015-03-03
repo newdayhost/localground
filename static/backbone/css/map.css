@@ -41,7 +41,7 @@ body { overflow: hidden; }
 	margin-top: 20px;
 	margin-bottom: 2px;
 }
-.layer-header > .fa-search, .layer-header > .fa-edit  {
+.layer-header > .fa-search, .layer-header > .fa-edit, .layer-header > .fa-trash {
 	margin: 20px 3px 0px 0px;
 	color: #999;
 }

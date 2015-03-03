@@ -40,11 +40,14 @@ define(["marionette",
             },
 
             addModel: function (model) {
-                this.collection.add(model);
-                // add the layer to the right-hand layer panel and 
                 // make sure it's showing on the map
-                this.toggleItem(model.get("id"), true);
                 model.set("isShowingOnMap", true);
+
+                // add it to the collection
+                this.collection.add(model);
+
+                // add the layer to the right-hand layer panel
+                this.toggleItem(model.get("id"), true);
             },
 
             toggleCheckbox: function (e) {

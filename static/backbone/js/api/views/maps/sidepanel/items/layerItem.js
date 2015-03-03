@@ -25,11 +25,11 @@ define(["marionette",
                 'click .check-all': 'toggleShowAll',
                 'click .cb-layer-item': 'toggleShow',
                 'click .zoom-to-extent': 'zoomToExtent',
-                'click .edit-layer': 'editLayer'
+                'click .edit-layer': 'editLayer',
+                'click .delete-layer': 'deleteLayer'
             },
 
             initialize: function (opts) {
-                //console.log(opts.model.get("name"));
                 this.model = opts.model;
                 this.app = opts.app;
                 this.id = 'sidebar-' + this.model.getKey() + "-" + this.model.get('id');
@@ -40,6 +40,7 @@ define(["marionette",
             },
 
             templateHelpers: function () {
+                console.log("isShowingOnMap", this.model.get("isShowingOnMap"));
                 var extras = {
                     name: this.model.get("name"),
                     symbols: this.model.getSymbols(),
@@ -76,6 +77,13 @@ define(["marionette",
                 this.app.vent.trigger('show-layer-editor', { model: this.model });
             },
 
+            deleteLayer: function () {
+                var doDelete = confirm("Are you sure that you want to delete this layer?");
+                if (doDelete) {
+                    this.model.destroy();
+                }
+            },
+
             saveState: function () {
                 //remember layer and symbol visibility
                 var visMemory = { isShowingOnMap: this.model.get("isShowingOnMap") };
@@ -88,7 +96,7 @@ define(["marionette",
             restoreState: function () {
                 //restore layer and symbol visibility
                 this.state = this.app.restoreState(this.id) || {};
-                this.model.set("isShowingOnMap", this.state.isShowingOnMap || false);
+                this.model.set("isShowingOnMap", this.model.get("isShowingOnMap") || this.state.isShowingOnMap || false);
                 var that = this;
                 _.each(this.model.getSymbols(), function (symbol) {
                     symbol.isShowingOnMap = that.state[symbol.rule] || false;
