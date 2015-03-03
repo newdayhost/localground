@@ -56,6 +56,7 @@ define(["underscore",
             },
 
             saveForm: function (e) {
+                var isNewModel = false;
                 //does validation
                 this.form.commit();
 
@@ -66,10 +67,14 @@ define(["underscore",
                 }
                 if (_.isUndefined(this.model.get("project_id"))) {
                     this.model.set("project_id", this.app.getActiveProjectID());
+                    isNewModel = true;
                 }
                 //save to database:
                 this.model.save(); //does database commit
                 this.app.vent.trigger('show-layer-list');
+                if (isNewModel) {
+                    this.app.vent.trigger("add-layer", this.model);
+                }
                 if (!_.isUndefined(e)) {
                     e.preventDefault();
                 }

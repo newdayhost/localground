@@ -27,6 +27,10 @@ define(
             var $map_container = $('<div id="map_canvas"></div>');
             $(document.body).append($map_container);
 
+            //SAFETY MEASURE: makes sure that nothing gets committed to the database.
+            spyOn($, 'ajax').and.callFake(function () {});
+
+
             /**
              * Adds some dummy data for testing convenience.
              * Availabe to all of the tests.

@@ -1,8 +1,9 @@
 define([
+    "jquery",
     "views/maps/sidepanel/layerEditor",
     "../../../test/spec-helper"
 ],
-    function (LayerEditor) {
+    function ($, LayerEditor) {
         'use strict';
 
         describe("LayerEditor: Initializes correctly", function () {
@@ -100,6 +101,7 @@ define([
 
                 // make sure that global event was triggered:
                 expect(this.app.vent.trigger).toHaveBeenCalledWith('show-layer-list');
+                expect(this.app.vent.trigger).toHaveBeenCalledWith('add-layer', layerEditor.model);
             });
 
         });
