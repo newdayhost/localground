@@ -8,9 +8,9 @@ define([
         'use strict';
         var layerItem1,
             layerItem2;
-        function getLayer1(scope) {
+        function getLayer(scope, id) {
             var l1 = new LayerItem({
-                model: scope.layers.at(0),
+                model: scope.layers.get(id),
                 app: scope.app
             });
             l1.render();
@@ -20,22 +20,21 @@ define([
             it("Can initialize", function () {
                 var that = this;
                 expect(function () {
-                    layerItem1 = getLayer1(that);
-                    layerItem2 = new LayerItem({
-                        model: that.layers.at(2),
-                        app: that.app
-                    });
+                    layerItem1 = getLayer(that, 1);
+                    layerItem2 = getLayer(that, 3);
                 }).not.toThrow();
             });
 
             it("Renders the correct template", function () {
-                layerItem1.render();
-                layerItem2.render();
+                layerItem1 = getLayer(this, 1);
+                layerItem2 = getLayer(this, 3);
                 expect(layerItem1.$el).toContainElement('.layer-list');
                 expect(layerItem2.$el).toContainElement('.layer-simple');
             });
 
             it("Adds the correct variables to the template context", function () {
+                layerItem1 = getLayer(this, 1);
+                layerItem2 = getLayer(this, 3);
                 var context1 = layerItem1.templateHelpers(),
                     context2 = layerItem2.templateHelpers();
                 _.each(["name", "symbols", "isShowingOnMap"], function (key) {
@@ -52,8 +51,7 @@ define([
         describe("LayerItem: make sure symbol checkbox event handlers are working", function () {
             var symbolChanged = false;
             it("Symbol-level checkbox event handlers working", function () {
-                layerItem1 = getLayer1(this);
-
+                layerItem1 = getLayer(this, 1);
                 //trigger the checkbox click event:
                 var $cb = layerItem1.$el.find('.cb-layer-item:first'),
                     symbol = layerItem1.model.getSymbol("worms > 0");
@@ -83,7 +81,7 @@ define([
         describe("LayerItem: make sure layer checkbox event handlers are working", function () {
             var modelChanged = false;
             it("Layer-level event handlers working", function () {
-                layerItem1 = getLayer1(this);
+                layerItem1 = getLayer(this, 1);
                 var $cb = layerItem1.$el.find('.check-all');
                 //add model listener, to be sure that checkbox raises the 'change:isShowingOnMap'
                 //event for the Layer model being referenced:
@@ -110,7 +108,7 @@ define([
             var zoomToExtent = false;
             it("Variables all initialize as unchanged", function () {
                 //initialize layer and attach event listeners:
-                layerItem1 = getLayer1(this);
+                layerItem1 = getLayer(this, 1);
                 var $zoomButton = layerItem1.$el.find('.zoom-to-extent');
 
                 layerItem1.model.on('zoom-to-layer', function () { zoomToExtent = true; });
@@ -127,7 +125,7 @@ define([
 
         describe("LayerItem: ensure that state is preserved", function () {
             it("Saves state correctly when everything turned on", function () {
-                layerItem1 = getLayer1(this);
+                layerItem1 = getLayer(this, 1);
                 var model = layerItem1.model;
                 model.set("isShowingOnMap", true);
                 model.showSymbols();

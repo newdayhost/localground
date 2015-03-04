@@ -24,7 +24,7 @@ define([
 
             it("Renders a populated form when a model is defined", function () {
                 var that = this,
-                    model = this.layers.at(0),
+                    model = this.layers.get(1),
                     layerEditor = new LayerEditor({ app: that.app, model: model });
 
                 expect(layerEditor.$el.find('form').length).toEqual(1);
@@ -52,7 +52,7 @@ define([
 
             it("Updates an existing model from the form", function () {
                 spyOn(this.app.vent, 'trigger').and.callThrough();
-                var model = this.layers.at(0),
+                var model = this.layers.get(1),
                     layerEditor = new LayerEditor({ app: this.app, model: model });
 
                 //update the form value & save the form:
@@ -101,7 +101,6 @@ define([
 
                 // make sure that global event was triggered:
                 expect(this.app.vent.trigger).toHaveBeenCalledWith('show-layer-list');
-                expect(this.app.vent.trigger).toHaveBeenCalledWith('add-layer', layerEditor.model);
             });
 
         });

@@ -3,18 +3,18 @@ define(["views/maps/overlays/symbol", "../../../test/spec-helper"],
         'use strict';
         describe("Layer Model: Tests model attribute validation", function () {
             it("Initializes with isVisible flag = \"false\"", function () {
-                var layer = this.layers.at(0);
+                var layer = this.layers.get(1);
                 expect(layer.get("isVisible")).toBeFalsy();
             });
             it("Has a symbols attribute that is not null and", function () {
-                var layer = this.layers.at(0);
+                var layer = this.layers.get(1);
                 expect(layer.get("isVisible")).toBeFalsy();
             });
 
             it("Validates any update to \"symbols\" to ensure that it is an array", function () {
                 var that = this,
                     validate = function (val, expectError) {
-                        var layer = that.layers.at(0),
+                        var layer = that.layers.get(1),
                             errorCallback = jasmine.createSpy("-invalid event callback-"),
                             lastCall = null,
                             errorMessage = 'Layer.symbols must be a JSON array with at least one entry';
@@ -45,16 +45,17 @@ define(["views/maps/overlays/symbol", "../../../test/spec-helper"],
 
         describe("Layer Model: Test symbol parsing", function () {
             it("Parses symbol array correctly", function () {
-                var layer = this.layers.at(0),
+                var layer = this.layers.get(1),
                     symbol = new Symbol({ color: "#7075FF", width: 30, rule: "worms > 0", title: "At least 1 worm" });
                 expect(_.isObject(layer.getSymbolMap())).toBeTruthy();
+                console.log(layer.getSymbols());
                 expect(layer.getSymbols().length).toBe(2);
                 expect(layer.getSymbol("worms > 0").rule).toBe(symbol.rule);
             });
 
             it("Can distinguish between basic and complex layer", function () {
-                var layer1 = this.layers.at(0),     // more than one symbol
-                    layer2 = this.layers.at(2);     // only one symbol
+                var layer1 = this.layers.get(1),     // more than one symbol
+                    layer2 = this.layers.get(3);     // only one symbol
                 expect(layer1.basic).toBeFalsy();
                 expect(layer2.basic).toBeTruthy();
             });
