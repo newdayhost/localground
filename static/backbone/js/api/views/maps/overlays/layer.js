@@ -11,6 +11,56 @@ define(['marionette',
          * the constituent views.
          * @class OverlayGroup
          */
+        var SymbolSet = function (opts) {
+            this.overlays = null;
+            this.rule = null;
+            this.symbol = null;
+            this.initialize = function (opts) {
+                this.overlays = {};
+                this.rule = opts.rule;
+                this.symbol = opts.symbol;
+            };
+            this.addOverlay = function (model) {
+                var configKey,
+                    opts,
+                    key = model.get("overlay_type") + "_" + model.get("id");
+                if (!_.isUndefined(this.overlays[key])) {
+                    return;
+                }
+                if (model.get('geometry') == null) {
+                    return;
+                }
+                //if overlay doesn't exist, add it:
+                configKey = model.getKey().split("_")[0];
+                opts = {
+                    app: this.app,
+                    model: model,
+                    symbol: this.symbol,
+                    map: this.map,
+                    infoBubbleTemplates: {
+                        InfoBubbleTemplate: _.template(Config[configKey].InfoBubbleTemplate),
+                        TipTemplate: _.template(Config[configKey].TipTemplate)
+                    }
+                };
+                this.overlays[key] = new Symbolized(opts);
+            };
+            this.hideOverlays = function () {
+                var key;
+                for (key in this.overlays) {
+                    this.overlays[key].hide();
+                }
+            };
+            this.showOverlays = function () {
+                var key;
+                for (key in this.overlays) {
+                    this.overlays[key].hide();
+                }
+            };
+            this.getOverlays = function () {
+                return _.values(this.overlays);
+            };
+            this.initialize(opts);
+        };
         var Layer = Marionette.ItemView.extend({
             /** A google.maps.Map object */
             map: null,
@@ -20,7 +70,7 @@ define(['marionette',
             isShowingOnMap: false,
             symbols: null,
             modelEvents: {
-                //'change:isShowingOnMap': 'visibilityChanged',
+                'change:isShowingOnMap': 'visibilityChanged',
                 'symbol-change': 'renderSymbol',
                 'zoom-to-layer': 'zoomToExtent',
                 'symbology-updated': 'applyNewSymbol'
@@ -46,6 +96,10 @@ define(['marionette',
                 this.overlayMap = {};
             },
             applyNewSymbol: function () {
+                /**
+                 * Todo: Need a better way to update symbols that doesn't involve completely destroying them.
+                 *
+                 */
                 //destroy current map overlays:
                 this.destroyGoogleMapOverlays();
 

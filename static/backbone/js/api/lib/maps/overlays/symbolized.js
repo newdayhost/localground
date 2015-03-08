@@ -13,6 +13,10 @@ define(["underscore",
             'change:geometry': 'updateOverlay',
             'change': 'render'
         },
+        updateSymbol: function (symbol) {
+            this.symbol = symbol;
+            this._overlay.setIcon(this.getIcon());
+        },
         //symbol: 'pin',
         /**
          * Get the corresponding SVG marker icon
