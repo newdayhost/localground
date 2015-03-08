@@ -20,13 +20,12 @@ define(['marionette',
             isShowingOnMap: false,
             symbols: null,
             modelEvents: {
-                'change:isShowingOnMap': 'redraw',
+                //'change:isShowingOnMap': 'visibilityChanged',
                 'symbol-change': 'renderSymbol',
                 'zoom-to-layer': 'zoomToExtent',
-                'change:symbols': 'applyNewSymbol'
+                'symbology-updated': 'applyNewSymbol'
             },
             initialize: function (opts) {
-                console.log("adding new layer...");
                 this.app = opts.app;
                 this.model = opts.model; //a sidepanel LayerItem object
                 this.dataManager = this.app.dataManager;
@@ -34,7 +33,7 @@ define(['marionette',
                 this.overlayMap = {};
                 this.parseLayerItem();
                 this.listenTo(this.app.vent, 'selected-projects-updated', this.parseLayerItem);
-                this.app.vent.on("filter-applied", this.redraw.bind(this));
+                this.app.vent.on("filter-applied", this.render.bind(this));
             },
             onBeforeDestroy: function () {
                 this.destroyGoogleMapOverlays();
@@ -54,14 +53,6 @@ define(['marionette',
                 this.parseLayerItem();
 
                 //and render:
-                this.redraw();
-            },
-            redraw: function () {
-                if (this.model.get("isShowingOnMap")) {
-                    this.model.showSymbols();
-                } else {
-                    this.model.hideSymbols();
-                }
                 this.render();
             },
             getSymbolOverlays: function (rule) {
@@ -80,7 +71,12 @@ define(['marionette',
                     overlay.redraw();
                 });
             },
+            visibilityChanged: function () {
+                console.log("Model visibility changed");
+                this.render();
+            },
             render: function () {
+                console.log(this.model.get("name"), " is rendering", this.model.get("isShowingOnMap"));
                 var rule;
                 for (rule in this.overlayMap) {
                     this.renderSymbol(rule);

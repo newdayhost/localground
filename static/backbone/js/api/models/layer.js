@@ -91,7 +91,9 @@ define(["underscore", "models/base", "views/maps/overlays/symbol"], function (_,
 
         getSymbolMap: function () {
             return this.symbolMap;
-        },
+        }
+        
+        /*,
 
         hideSymbols: function () {
             _.each(this.getSymbols(), function (symbol) {
@@ -103,7 +105,7 @@ define(["underscore", "models/base", "views/maps/overlays/symbol"], function (_,
             _.each(this.getSymbols(), function (symbol) {
                 symbol.isShowingOnMap = true;
             });
-        }
+        }*/
     });
     return Layer;
 });

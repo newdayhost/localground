@@ -37,6 +37,7 @@ define(["marionette",
                     this.template = _.template(LayerEntrySimple);
                 }
                 this.restoreState();
+                this.saveState();
             },
 
             templateHelpers: function () {

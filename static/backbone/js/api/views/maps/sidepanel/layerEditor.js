@@ -73,6 +73,8 @@ define(["underscore",
                         //turn it on.
                         if (isNew) {
                             that.app.vent.trigger("add-layer-to-menu", that.model);
+                        } else {
+                            that.model.trigger("symbology-updated");
                         }
                     }
                 });
