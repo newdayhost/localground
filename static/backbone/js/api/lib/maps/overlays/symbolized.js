@@ -43,7 +43,7 @@ define(["underscore",
         initialize: function (opts) {
             // Because an OverlayGroup instance and a Layer instance may be
             // sharing the same models, it is important to initialize this flag as
-            // *not showing, so that it's display status isnt' confounded with the
+            // *not showing, so that it's display status isn't confounded with the
             // display status of a corresponding OverlayGroup.
             this._isShowingOnMap = false;
             Base.prototype.initialize.apply(this, arguments);

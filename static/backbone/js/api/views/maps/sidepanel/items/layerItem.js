@@ -40,7 +40,6 @@ define(["marionette",
             },
 
             templateHelpers: function () {
-                console.log("isShowingOnMap", this.model.get("isShowingOnMap"));
                 var extras = {
                     name: this.model.get("name"),
                     symbols: this.model.getSymbols(),

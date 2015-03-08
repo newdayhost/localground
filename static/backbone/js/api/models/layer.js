@@ -17,12 +17,19 @@ define(["underscore", "models/base", "views/maps/overlays/symbol"], function (_,
         },
         basic: false,
         initialize: function (data, opts) {
+            var that = this;
 			Base.prototype.initialize.apply(this, arguments);
             if (!_.isUndefined(this.get("id"))) {
                 this.buildSymbolMap();
             }
             this.on("change:symbols", function () {
                 this.buildSymbolMap();
+            });
+            this.on("change:isShowingOnMap", function () {
+                var key;
+                for (key in that.symbolMap) {
+                    that.symbolMap[key].isShowingOnMap = that.get("isShowingOnMap");
+                }
             });
 		},
         toJSON: function () {

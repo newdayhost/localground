@@ -26,6 +26,7 @@ define(['marionette',
                 'change:symbols': 'applyNewSymbol'
             },
             initialize: function (opts) {
+                console.log("adding new layer...");
                 this.app = opts.app;
                 this.model = opts.model; //a sidepanel LayerItem object
                 this.dataManager = this.app.dataManager;
