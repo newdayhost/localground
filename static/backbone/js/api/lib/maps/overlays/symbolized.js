@@ -52,7 +52,6 @@ define(["underscore",
             this._isShowingOnMap = false;
             Base.prototype.initialize.apply(this, arguments);
             this.symbol = opts.symbol;
-            console.log("initializing");
             this.redraw();
         },
 
@@ -63,7 +62,7 @@ define(["underscore",
         },
 
         redraw: function () {
-            console.log("redrawing", this.model.get("name"));
+            //console.log("redrawing", this.model.get("name"));
             if (this.symbol.isShowingOnMap) {
                 this.show();
             } else {

@@ -44,31 +44,18 @@ define(['config',
             this.findMatches = function (dataManager) {
                 var that = this,
                     match = false,
-                    key = null,
-                    matched = [],
-                    keysToRemove;
+                    key = null;
 
-                //1. find current matches:
                 _.each(_.values(dataManager.collections), function (collection) {
                     collection.each(function (model) {
                         match = that.symbol.checkModel(model);
                         if (match) {
                             key = model.get("overlay_type") + "_" + model.get("id");
                             that.addOverlay(key, model);
-                            matched.push(key);
                         }
                     });
                 });
 
-                //2. remove stale matches:
-                keysToRemove = _.difference(_.keys(this.overlays), matched);
-                console.log(_.keys(this.overlays), matched, keysToRemove);
-                //console.log("to be removed: ", keysToRemove);
-                _.each(keysToRemove, function (key) {
-                    console.log("removing the following model: ", key);
-                    that.overlays[key].hide();
-                    delete that.overlays[key];
-                });
             };
 
             this.addOverlay = function (key, model) {

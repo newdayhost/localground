@@ -1,4 +1,4 @@
-define(["underscore", "models/base", "views/maps/overlays/symbol"], function (_, Base, Symbol) {
+define(["underscore", "models/base", "models/helpers/symbol"], function (_, Base, Symbol) {
     "use strict";
     /**
      * A Backbone Model class for the Photo datatype.

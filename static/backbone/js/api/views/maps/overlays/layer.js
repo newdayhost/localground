@@ -30,7 +30,8 @@ define(['marionette',
             },
 
             parseLayerItem: function () {
-                var that = this;
+                var that = this,
+                    keysToRemove;
                 _.each(this.model.getSymbols(), function (symbol) {
                     if (_.isUndefined(that.symbolSetLookup[symbol.rule])) {
                         that.symbolSetLookup[symbol.rule] = new SymbolSet({
@@ -42,6 +43,14 @@ define(['marionette',
                         that.symbolSetLookup[symbol.rule].updateSymbol(symbol);
                     }
                     that.symbolSetLookup[symbol.rule].findMatches(that.dataManager);
+                });
+
+                //2. remove stale matches:
+                keysToRemove = _.difference(_.keys(this.symbolSetLookup), _.keys(this.model.symbolMap));
+                _.each(keysToRemove, function (key) {
+                    //console.log("removing the following symbolset: ", key);
+                    that.symbolSetLookup[key].destroyOverlays();
+                    delete that.symbolSetLookup[key];
                 });
             },
 
@@ -69,7 +78,7 @@ define(['marionette',
             },
 
             visibilityChanged: function () {
-                console.log("Model visibility changed");
+                //console.log("visibilityChanged");
                 this.render();
             },
 
