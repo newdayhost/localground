@@ -74,6 +74,7 @@ define(["underscore",
                         if (isNew) {
                             that.app.vent.trigger("add-layer-to-menu", that.model);
                         } else {
+                            that.model.trigger("change:isShowingOnMap");
                             that.model.trigger("symbology-updated");
                         }
                     }

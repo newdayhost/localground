@@ -15,7 +15,7 @@ define(["underscore",
         },
         updateSymbol: function (symbol) {
             this.symbol = symbol;
-            this._overlay.setIcon(this.getIcon());
+            this.redraw();
         },
         //symbol: 'pin',
         /**
