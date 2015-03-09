@@ -1,4 +1,4 @@
-define(["views/maps/overlays/symbol", "../../../test/spec-helper"],
+define(["models/helpers/symbol", "../../../test/spec-helper"],
     function (Symbol) {
         'use strict';
         describe("Layer Model: Tests model attribute validation", function () {

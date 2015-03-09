@@ -1,5 +1,5 @@
 define([
-    "views/maps/overlays/symbol",
+    "models/helpers/symbol",
     "../../../test/spec-helper"
 ],
     function (Symbol) {

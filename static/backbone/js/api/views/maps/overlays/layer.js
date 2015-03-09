@@ -89,6 +89,15 @@ define(['marionette',
                 }
             },
 
+            getOverlays: function () {
+                var overlays = [],
+                    rule;
+                for (rule in this.symbolSetLookup) {
+                    overlays = overlays.concat(this.symbolSetLookup[rule].getOverlays());
+                }
+                return overlays;
+            },
+
             hideSymbol: function (rule) {
                 this.symbolSetLookup[rule].hideOverlays();
             },

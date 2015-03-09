@@ -30,7 +30,7 @@ define([
                     layerView = initLayerView(that);
                 }).not.toThrow();
                 expect(layerView.dataManager).toEqual(jasmine.any(DataManager));
-                expect(_.isObject(layerView.overlayMap)).toBeTruthy();
+                expect(_.isObject(layerView.symbolSetLookup)).toBeTruthy();
             });
 
             it("Correctly renders \"Symbolized\" overlays on initialization", function () {
@@ -40,9 +40,9 @@ define([
                 expect(layerView.model.getSymbols().length).toBe(2);
 
                 //the dog symbol has one dog model and the cat symbol has one cat model:
-                _.each(layerView.overlayMap, function (val) {
-                    expect(val.length).toBe(1);
-                    expect(val[0]).toEqual(jasmine.any(Symbolized));
+                _.each(layerView.symbolSetLookup, function (symbolSet) {
+                    expect(symbolSet.getOverlays().length).toBe(1);
+                    expect(symbolSet.getOverlays()[0]).toEqual(jasmine.any(Symbolized));
                 });
             });
         });
@@ -50,17 +50,19 @@ define([
         describe("Layer view: event handlers correctly add and remove layers", function () {
             it("Listens for toggle symbol checkbox", function () {
                 var layerView = initLayerView(this),
-                    rule = 'tags contains cat';
-                expect(layerView.getSymbolOverlays(rule).length).toBe(1);
-                _.each(layerView.getSymbolOverlays(rule), function (overlay) {
+                    rule = 'tags contains cat',
+                    overlays = layerView.symbolSetLookup[rule].getOverlays();
+                expect(overlays.length).toBe(1);
+                _.each(overlays, function (overlay) {
                     expect(overlay.isShowingOnMap()).toBeFalsy();
                 });
 
                 //emulate the behavior of a checkbox click:
                 layerView.model.getSymbol(rule).isShowingOnMap = true;
                 layerView.model.trigger('symbol-change', rule);
-                expect(layerView.getSymbolOverlays(rule).length).toBe(1);
-                _.each(layerView.getSymbolOverlays(rule), function (overlay) {
+                overlays = layerView.symbolSetLookup[rule].getOverlays();
+                expect(overlays.length).toBe(1);
+                _.each(overlays, function (overlay) {
                     expect(overlay.isShowingOnMap()).toBeTruthy();
                 });
 
@@ -68,31 +70,32 @@ define([
                 //emulate the behavior of a checkbox click:
                 layerView.model.getSymbol(rule).isShowingOnMap = false;
                 layerView.model.trigger('symbol-change', rule);
-                expect(layerView.getSymbolOverlays(rule).length).toBe(1);
-                _.each(layerView.getSymbolOverlays(rule), function (overlay) {
+                overlays = layerView.symbolSetLookup[rule].getOverlays();
+                expect(overlays.length).toBe(1);
+                _.each(overlays, function (overlay) {
                     expect(overlay.isShowingOnMap()).toBeFalsy();
                 });
             });
 
             it("Listens for toggle layer checkbox", function () {
                 var layerView = initLayerView(this);
-                expect(layerView.getLayerOverlays().length).toBe(2);
-                _.each(layerView.getLayerOverlays(), function (overlay) {
+                expect(layerView.getOverlays().length).toBe(2);
+                _.each(layerView.getOverlays(), function (overlay) {
                     expect(overlay.isShowingOnMap()).toBeFalsy();
                 });
 
                 //emulate the behavior of a checkbox click:
                 layerView.model.set("isShowingOnMap", true);
-                expect(layerView.getLayerOverlays().length).toBe(2);
-                _.each(layerView.getLayerOverlays(), function (overlay) {
+                expect(layerView.getOverlays().length).toBe(2);
+                _.each(layerView.getOverlays(), function (overlay) {
                     expect(overlay.isShowingOnMap()).toBeTruthy();
                 });
 
                 //do it again:
                 //emulate the behavior of a checkbox click:
                 layerView.model.set("isShowingOnMap", false);
-                expect(layerView.getLayerOverlays().length).toBe(2);
-                _.each(layerView.getLayerOverlays(), function (overlay) {
+                expect(layerView.getOverlays().length).toBe(2);
+                _.each(layerView.getOverlays(), function (overlay) {
                     expect(overlay.isShowingOnMap()).toBeFalsy();
                 });
             });
