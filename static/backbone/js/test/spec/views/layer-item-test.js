@@ -128,7 +128,6 @@ define([
                 layerItem1 = getLayer(this, 1);
                 var model = layerItem1.model;
                 model.set("isShowingOnMap", true);
-                model.showSymbols();
 
                 // check to make sure that all flags set to true
                 // and then save state:
@@ -141,7 +140,6 @@ define([
                 //now turn everything off and check that everything has been
                 // turned off:
                 model.set("isShowingOnMap", false);
-                model.hideSymbols();
                 expect(model.get("isShowingOnMap")).toBeFalsy();
                 _.each(model.getSymbols(), function (symbol) {
                     expect(symbol.isShowingOnMap).toBeFalsy();

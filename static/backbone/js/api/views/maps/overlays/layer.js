@@ -1,66 +1,10 @@
 define(['marionette',
-        'config',
         'underscore',
-        'lib/maps/overlays/symbolized'
+        'views/maps/overlays/symbolSet'
     ],
-    function (Marionette, Config, _, Symbolized) {
+    function (Marionette, _, SymbolSet) {
         'use strict';
-        /**
-         * The top-level view class that harnesses all of the map editor
-         * functionality. Also coordinates event triggers across all of
-         * the constituent views.
-         * @class OverlayGroup
-         */
-        var SymbolSet = function (opts) {
-            this.overlays = null;
-            this.rule = null;
-            this.symbol = null;
-            this.initialize = function (opts) {
-                this.overlays = {};
-                this.rule = opts.rule;
-                this.symbol = opts.symbol;
-            };
-            this.addOverlay = function (model) {
-                var configKey,
-                    opts,
-                    key = model.get("overlay_type") + "_" + model.get("id");
-                if (!_.isUndefined(this.overlays[key])) {
-                    return;
-                }
-                if (model.get('geometry') == null) {
-                    return;
-                }
-                //if overlay doesn't exist, add it:
-                configKey = model.getKey().split("_")[0];
-                opts = {
-                    app: this.app,
-                    model: model,
-                    symbol: this.symbol,
-                    map: this.map,
-                    infoBubbleTemplates: {
-                        InfoBubbleTemplate: _.template(Config[configKey].InfoBubbleTemplate),
-                        TipTemplate: _.template(Config[configKey].TipTemplate)
-                    }
-                };
-                this.overlays[key] = new Symbolized(opts);
-            };
-            this.hideOverlays = function () {
-                var key;
-                for (key in this.overlays) {
-                    this.overlays[key].hide();
-                }
-            };
-            this.showOverlays = function () {
-                var key;
-                for (key in this.overlays) {
-                    this.overlays[key].hide();
-                }
-            };
-            this.getOverlays = function () {
-                return _.values(this.overlays);
-            };
-            this.initialize(opts);
-        };
+
         var Layer = Marionette.ItemView.extend({
             /** A google.maps.Map object */
             map: null,
@@ -68,7 +12,7 @@ define(['marionette',
             overlayMap: null,
             model: null,
             isShowingOnMap: false,
-            symbols: null,
+            symbolSetLookup: null,
             modelEvents: {
                 'change:isShowingOnMap': 'visibilityChanged',
                 'symbol-change': 'renderSymbol',
@@ -81,13 +25,32 @@ define(['marionette',
                 this.dataManager = this.app.dataManager;
                 this.map = this.app.map;
                 this.overlayMap = {};
+                this.symbolSetLookup = {};
                 this.parseLayerItem();
                 this.listenTo(this.app.vent, 'selected-projects-updated', this.parseLayerItem);
                 this.app.vent.on("filter-applied", this.render.bind(this));
             },
+
+            parseLayerItem: function () {
+                var that = this;
+                _.each(this.model.getSymbols(), function (symbol) {
+                    if (_.isUndefined(that.symbolSetLookup[symbol.rule])) {
+                        that.symbolSetLookup[symbol.rule] = new SymbolSet({
+                            symbol: symbol,
+                            app: that.app,
+                            map: that.map
+                        });
+                    } else {
+                        that.symbolSetLookup[symbol.rule].updateSymbol(symbol);
+                    }
+                    that.symbolSetLookup[symbol.rule].findMatches(that.dataManager);
+                });
+            },
+
             onBeforeDestroy: function () {
                 this.destroyGoogleMapOverlays();
             },
+
             destroyGoogleMapOverlays: function () {
                 var that = this;
                 _.each(this.model.getSymbols(), function (symbol) {
@@ -95,6 +58,7 @@ define(['marionette',
                 });
                 this.overlayMap = {};
             },
+
             applyNewSymbol: function () {
                 /**
                  * Todo: Need a better way to update symbols that doesn't involve completely destroying them.
@@ -130,81 +94,30 @@ define(['marionette',
                 this.render();
             },
             render: function () {
-                console.log(this.model.get("name"), " is rendering", this.model.get("isShowingOnMap"));
                 var rule;
-                for (rule in this.overlayMap) {
-                    this.renderSymbol(rule);
+                for (rule in this.symbolSetLookup) {
+                    this.symbolSetLookup[rule].render();
                 }
             },
-            parseLayerItem: function () {
-                var that = this;
-                _.each(this.model.getSymbols(), function (symbol) {
-                    //clear out old overlays and models
-                    that.clear(symbol);
-                    _.each(_.values(that.dataManager.collections), function (collection) {
-                        that.addMatchingModels(symbol, collection);
-                    });
-                });
-            },
+
             clear: function (symbol) {
                 symbol.models = [];
                 this.hideSymbol(symbol.rule);
                 //once hidden, remove all symbolized map overlay objects for g.c.
                 this.overlayMap[symbol.rule] = [];
             },
-            addMatchingModels: function (symbol, collection) {
-                var match = false,
-                    that = this;
-                collection.each(function (model) {
-                    match = symbol.checkModel(model);
-                    if (match) {
-                        symbol.addModel(model);
-                        that.addOverlay(symbol, model);
-                    }
-                });
-            },
-            addOverlay: function (symbol, model) {
-                var configKey,
-                    opts;
-                if (model.get('geometry') != null) {
-                    configKey = model.getKey().split("_")[0];
-                    opts = {
-                        app: this.app,
-                        model: model,
-                        symbol: symbol,
-                        map: this.map,
-                        infoBubbleTemplates: {
-                            InfoBubbleTemplate: _.template(Config[configKey].InfoBubbleTemplate),
-                            TipTemplate: _.template(Config[configKey].TipTemplate)
-                        }
-                    };
-                    if (this.overlayMap[symbol.rule] == null) {
-                        this.overlayMap[symbol.rule] = [];
-                    }
-                    this.overlayMap[symbol.rule].push(new Symbolized(opts));
-                }
-            },
 
             hideSymbol: function (rule) {
-                var i;
-                if (!this.overlayMap[rule]) {
-                    return;
-                }
-                for (i = 0; i < this.overlayMap[rule].length; i++) {
-                    this.overlayMap[rule][i].hide();
-                }
+                this.symbolSetLookup[rule].hideOverlays();
             },
 
 
             /** Zooms to the extent of the collection */
             zoomToExtent: function () {
                 var bounds = new google.maps.LatLngBounds(),
-                    i,
                     key;
-                for (key in this.overlayMap) {
-                    for (i = 0; i < this.overlayMap[key].length; i++) {
-                        bounds.union(this.overlayMap[key][i].getBounds());
-                    }
+                for (key in this.symbolSetLookup) {
+                    bounds.union(this.symbolSetLookup[key].getBounds());
                 }
                 if (!bounds.isEmpty()) {
                     this.map.fitBounds(bounds);

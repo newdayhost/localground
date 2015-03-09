@@ -1,12 +1,7 @@
 define(['underscore', 'lib/sqlParser', 'lib/maps/overlays/point'],
     function (_, SqlParser, Point) {
         'use strict';
-        /**
-         * The top-level view class that harnesses all of the map editor
-         * functionality. Also coordinates event triggers across all of
-         * the constituent views.
-         * @class OverlayGroup
-         */
+
         var Symbol = function (opts) {
             this.isShowingOnMap = false;
             //note: these can be heterogeneous models from many different collections
@@ -41,7 +36,7 @@ define(['underscore', 'lib/sqlParser', 'lib/maps/overlays/point'],
             this.checkModel = function (model) {
                 return this.sqlParser.checkModel(model);
             };
-            this.addModel = function (model) {
+            /*this.addModel = function (model) {
                 var hash = model.get("overlay_type") + "_" + model.get("id");
                 if (_.isUndefined(this.modelMap[hash])) {
                     this.modelMap[hash] = model;
@@ -49,7 +44,7 @@ define(['underscore', 'lib/sqlParser', 'lib/maps/overlays/point'],
             };
             this.getModels = function () {
                 return _.values(this.modelMap);
-            };
+            };*/
             this.init(opts);
         };
         return Symbol;
