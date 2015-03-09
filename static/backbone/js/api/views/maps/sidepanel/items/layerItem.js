@@ -36,8 +36,12 @@ define(["marionette",
                 if (this.model.basic) {
                     this.template = _.template(LayerEntrySimple);
                 }
+
+                //if the model is initialized as showing, don't overwrite this state w/stored state
+                if (this.model.get("isShowingOnMap")) {
+                    this.saveState();
+                }
                 this.restoreState();
-                this.saveState();
             },
 
             templateHelpers: function () {
