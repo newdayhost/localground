@@ -87,6 +87,12 @@ define(['config',
                 });
             };
 
+            this.destroyOverlays = function () {
+                _.each(this.getOverlays(), function (overlay) {
+                    overlay.hide();
+                });
+            };
+
             this.render = function () {
                 _.each(this.getOverlays(), function (overlay) {
                     overlay.redraw();

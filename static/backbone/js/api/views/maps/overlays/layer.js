@@ -9,7 +9,6 @@ define(['marionette',
             /** A google.maps.Map object */
             map: null,
             dataManager: null,
-            overlayMap: null,
             model: null,
             isShowingOnMap: false,
             symbolSetLookup: null,
@@ -24,7 +23,6 @@ define(['marionette',
                 this.model = opts.model; //a sidepanel LayerItem object
                 this.dataManager = this.app.dataManager;
                 this.map = this.app.map;
-                this.overlayMap = {};
                 this.symbolSetLookup = {};
                 this.parseLayerItem();
                 this.listenTo(this.app.vent, 'selected-projects-updated', this.parseLayerItem);
@@ -52,47 +50,29 @@ define(['marionette',
             },
 
             destroyGoogleMapOverlays: function () {
-                var that = this;
-                _.each(this.model.getSymbols(), function (symbol) {
-                    that.clear(symbol);
-                });
-                this.overlayMap = {};
+                var rule;
+                for (rule in this.symbolSetLookup) {
+                    this.symbolSetLookup[rule].destroyOverlays();
+                }
             },
 
             applyNewSymbol: function () {
-                /**
-                 * Todo: Need a better way to update symbols that doesn't involve completely destroying them.
-                 *
-                 */
-                //destroy current map overlays:
-                this.destroyGoogleMapOverlays();
-
                 //re-apply the layer rules to the available data:
                 this.parseLayerItem();
 
                 //and render:
                 this.render();
             },
-            getSymbolOverlays: function (rule) {
-                return this.overlayMap[rule];
-            },
-            getLayerOverlays: function () {
-                var overlays = [],
-                    rule;
-                for (rule in this.overlayMap) {
-                    overlays = overlays.concat(this.getSymbolOverlays(rule));
-                }
-                return overlays;
-            },
+
             renderSymbol: function (rule) {
-                _.each(this.getSymbolOverlays(rule), function (overlay) {
-                    overlay.redraw();
-                });
+                this.symbolSetLookup[rule].render();
             },
+
             visibilityChanged: function () {
                 console.log("Model visibility changed");
                 this.render();
             },
+
             render: function () {
                 var rule;
                 for (rule in this.symbolSetLookup) {
@@ -100,17 +80,9 @@ define(['marionette',
                 }
             },
 
-            clear: function (symbol) {
-                symbol.models = [];
-                this.hideSymbol(symbol.rule);
-                //once hidden, remove all symbolized map overlay objects for g.c.
-                this.overlayMap[symbol.rule] = [];
-            },
-
             hideSymbol: function (rule) {
                 this.symbolSetLookup[rule].hideOverlays();
             },
-
 
             /** Zooms to the extent of the collection */
             zoomToExtent: function () {
