@@ -15,30 +15,13 @@ define(['config',
                 this.map = opts.map;
                 this.symbol = opts.symbol;
             };
-            this.addOverlay = function (key, model) {
-                var configKey,
-                    opts;
-
-                if (!_.isUndefined(this.overlays[key])) { return; }
-                if (model.get('geometry') == null) { return; }
-
-                //if overlay doesn't exist, add it:
-                configKey = model.getKey().split("_")[0];
-                opts = {
-                    app: this.app,
-                    model: model,
-                    symbol: this.symbol,
-                    map: this.map,
-                    infoBubbleTemplates: {
-                        InfoBubbleTemplate: _.template(Config[configKey].InfoBubbleTemplate),
-                        TipTemplate: _.template(Config[configKey].TipTemplate)
-                    }
-                };
-                this.overlays[key] = new Symbolized(opts);
-            };
 
             this.updateSymbol = function (symbol) {
                 this.symbol = symbol;
+                var key;
+                for (key in this.overlays) {
+                    this.overlays[key].updateSymbol(this.symbol);
+                }
                 //this.render();
             };
 
@@ -79,12 +62,35 @@ define(['config',
 
                 //2. remove stale matches:
                 keysToRemove = _.difference(_.keys(this.overlays), matched);
-                console.log("to be removed: ", keysToRemove);
+                console.log(_.keys(this.overlays), matched, keysToRemove);
+                //console.log("to be removed: ", keysToRemove);
                 _.each(keysToRemove, function (key) {
-                    console.log(key);
+                    console.log("removing the following model: ", key);
                     that.overlays[key].hide();
                     delete that.overlays[key];
                 });
+            };
+
+            this.addOverlay = function (key, model) {
+                var configKey,
+                    opts;
+
+                if (!_.isUndefined(this.overlays[key])) { return; }
+                if (model.get('geometry') == null) { return; }
+
+                //if overlay doesn't exist, add it:
+                configKey = model.getKey().split("_")[0];
+                opts = {
+                    app: this.app,
+                    model: model,
+                    symbol: this.symbol,
+                    map: this.map,
+                    infoBubbleTemplates: {
+                        InfoBubbleTemplate: _.template(Config[configKey].InfoBubbleTemplate),
+                        TipTemplate: _.template(Config[configKey].TipTemplate)
+                    }
+                };
+                this.overlays[key] = new Symbolized(opts);
             };
 
             this.destroyOverlays = function () {

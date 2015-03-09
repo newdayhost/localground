@@ -36,15 +36,6 @@ define(['underscore', 'lib/sqlParser', 'lib/maps/overlays/point'],
             this.checkModel = function (model) {
                 return this.sqlParser.checkModel(model);
             };
-            /*this.addModel = function (model) {
-                var hash = model.get("overlay_type") + "_" + model.get("id");
-                if (_.isUndefined(this.modelMap[hash])) {
-                    this.modelMap[hash] = model;
-                }
-            };
-            this.getModels = function () {
-                return _.values(this.modelMap);
-            };*/
             this.init(opts);
         };
         return Symbol;
