@@ -1,5 +1,5 @@
 from rest_framework.relations import PrimaryKeyRelatedField
-from rest_framework.serializers import _resolve_model
+from rest_framework.utils.model_meta import _resolve_model
 
 class CustomModelField(PrimaryKeyRelatedField):
     '''
@@ -22,8 +22,9 @@ class CustomModelField(PrimaryKeyRelatedField):
         
         related_model = _resolve_model(model_field.rel.to)
         kwargs = {
-            'queryset': related_model._default_manager,
-            'many': False
+            'queryset': related_model._default_manager
+            #,
+            #'many': False
         }
         if model_field:
             kwargs['required'] = not(model_field.null or model_field.blank)

@@ -8,46 +8,39 @@ class BaseSerializer(serializers.HyperlinkedModelSerializer):
 
     def __init__(self, *args, **kwargs):
         super(BaseSerializer, self).__init__(*args, **kwargs)
-        if not hasattr(self.opts, 'view_name'):
-            # method of the DRF's serializers.HyperlinkedModelSerializer class:
-            self.opts.view_name = self._get_default_view_name(self.opts.model)
-
-        #raise Exception('%s - %s' % (self.opts.view_name, self.opts.lookup_field))
-
-        url_field = fields.UrlField(
-            view_name=self.opts.view_name,
-            lookup_field=self.opts.lookup_field
-        )
-        url_field.initialize(self, 'url')
-        self.fields['url'] = url_field
-
-        # Extra Sneaky:  give access to the request object in the
-        # HyperlinkedSerializer so that child objects can also use
-        # it:
-        self.request = url_field.context.get('request', None)
-
-
-class BaseNamedSerializer(BaseSerializer):
-    tags = fields.TagField(
-        label='tags',
-        required=False,
-        widget=widgets.TagAutocomplete,
-        help_text='Tag your object here')
-    name = serializers.CharField(required=False, label='name')
-    description = fields.DescriptionField(required=False, label='caption')
-    overlay_type = serializers.SerializerMethodField('get_overlay_type')
-    owner = serializers.SerializerMethodField('get_owner')
-
-    def __init__(self, *args, **kwargs):
-        '''
-        Overriding HyperlinkedModelSerializer constructor to use a
-        slightly altered version of the HyperlinkedIdentityField class
-        that takes some query params into account.
-        '''
-        super(BaseNamedSerializer, self).__init__(*args, **kwargs)
+        model_meta = self.Meta.model._meta
+        format_kwargs = {
+            'app_label': model_meta.app_label,
+            'model_name': model_meta.object_name.lower()
+        }
 
     class Meta:
-        fields = ('id', 'name', 'description', 'overlay_type', 'tags', 'owner')
+        fields = ('id',)
+
+
+class BaseNamedSerializer(serializers.HyperlinkedModelSerializer):
+    tags = serializers.CharField(required=False, allow_null=True, label='tags',
+                                    help_text='Tag your object here', allow_blank=True)
+    name = serializers.CharField(required=False, allow_null=True, label='name', allow_blank=True)
+    description = serializers.CharField(required=False, allow_null=True, label='caption',
+                                        style={'base_template': 'textarea.html'}, allow_blank=True)
+    overlay_type = serializers.SerializerMethodField()
+    owner = serializers.SerializerMethodField()
+    
+    def get_projects(self):
+        if self.context.get('view'):
+            view = self.context['view']
+            if view.request.user.is_authenticated():
+                return models.Project.objects.get_objects(view.request.user)
+            else:
+                return models.Project.objects.get_objects_public(
+                    access_key=view.request.GET.get('access_key')
+                )
+        else:
+            return models.Project.objects.all()
+
+    class Meta:
+        fields = ('url', 'id', 'name', 'description', 'overlay_type', 'tags', 'owner')
 
     def get_overlay_type(self, obj):
         return obj._meta.verbose_name
@@ -57,20 +50,33 @@ class BaseNamedSerializer(BaseSerializer):
 
 
 class GeometrySerializer(BaseNamedSerializer):
-    geometry = fields.GeometryField(help_text='Assign a GeoJSON string',
-                                    required=False,
-                                    widget=widgets.JSONWidget)
-
-    project_id = fields.ProjectField(source='project', required=False)
+    geometry = fields.GeometryField(
+        help_text='Assign a GeoJSON string',
+        required=False,
+        allow_null=True,
+        style={'base_template': 'textarea.html'},
+        source='point'
+    )
+    project_id = serializers.PrimaryKeyRelatedField(
+        queryset=models.Project.objects.all(),
+        source='project',
+        required=False
+    )
+    
+    def get_fields(self, *args, **kwargs):
+        fields = super(GeometrySerializer, self).get_fields(*args, **kwargs)
+        #restrict project list at runtime:
+        fields['project_id'].queryset = self.get_projects()
+        return fields
 
     class Meta:
         fields = BaseNamedSerializer.Meta.fields + \
-            ('project_id', 'geometry', 'owner')
+            ('project_id', 'geometry')
 
 
 class MediaGeometrySerializer(GeometrySerializer):
-    file_name = serializers.Field(source='file_name_new')
-    caption = serializers.Field(source='description')
+    file_name = serializers.CharField(source='file_name_new', required=False, read_only=True)
+    caption = serializers.CharField(source='description', allow_null=True, required=False, allow_blank=True)
 
     class Meta:
         fields = GeometrySerializer.Meta.fields + ('attribution',
@@ -82,10 +88,13 @@ class ExtentsSerializer(BaseNamedSerializer):
         label='project_id',
         source='project',
         required=False)
-    center = fields.GeometryField(help_text='Assign a GeoJSON string',
-                                  required=False,
-                                  widget=widgets.JSONWidget,
-                                  point_field_name='center')
+    center = fields.GeometryField(
+                        help_text='Assign a GeoJSON string',
+                        required=False,
+                        style={'base_template:input.html'},
+                        #widget=widgets.JSONWidget,
+                        #point_field_name='center'
+                    )
 
 
 class Meta:

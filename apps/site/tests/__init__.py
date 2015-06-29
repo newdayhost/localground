@@ -4,7 +4,29 @@ from rest_framework import status
 from localground.apps.site import models
 from django.contrib.auth.models import User
 from localground.apps.lib.helpers import get_timestamp_no_milliseconds
+import os
+from django.core import serializers
 
+
+
+"""
+Really hacky workaround - fixtures are deprecated, so I'm manually loading them here
+TODO: move fixture loading into actual python code, probably
+This is super duper slow and dumb
+"""
+fixture_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../fixtures'))
+fixture_filenames = ['test_data.json'] #'database_initialization.json', 
+
+def load_test_fixtures():
+    #print 'loading test fixtures...'
+    for fixture_filename in fixture_filenames:
+        fixture_file = os.path.join(fixture_dir, fixture_filename)
+    
+        fixture = open(fixture_file, 'rb')
+        objects = serializers.deserialize('json', fixture, ignorenonexistent=True)
+        for obj in objects:
+            obj.save()
+        fixture.close()
 
 class Client(test.Client):
 
@@ -27,9 +49,9 @@ class Client(test.Client):
 
 class ModelMixin(object):
     user_password = 'top_secret'
-    fixtures = ['initial_data.json', 'test_data.json']
+    #fixtures = ['test_data.json']
 
-    def setUp(self):
+    def setUp(self, load_fixtures=False):
         self._superuser = None
         self._user = None
         self._project = None
@@ -37,6 +59,9 @@ class ModelMixin(object):
         self._client_anonymous = None
         self._client_user = None
         self._client_superuser = None
+        if load_fixtures:
+            load_test_fixtures()
+
 
     @property
     def user(self):
@@ -74,8 +99,9 @@ class ModelMixin(object):
     def client_user(self):
         if self._client_user is None:
             self._client_user = Client(enforce_csrf_checks=True)
+            user = self.get_user()
             self._client_user.login(
-                username='tester',
+                username=user.username,
                 password=self.user_password)
             self._client_user.cookies['csrftoken'] = self.csrf_token
         return self._client_user
@@ -103,14 +129,18 @@ class ModelMixin(object):
             username,
             first_name='superuser',
             email='',
-            password=self.user_password)
+            password=self.user_password,
+            id=2)
 
     def get_user(self, username='tester'):
-        return User.objects.get(username=username)
+        try:
+            return User.objects.get(username=username)
+        except:
+            return self.create_user()
 
     def create_project(self, user, name='Test Project', authority_id=1):
         import random
-        slug = random.sample('0123456789abcdefghijklmnopqrstuvwxyz', 16)
+        slug = ''.join(random.sample('0123456789abcdefghijklmnopqrstuvwxyz', 16))
         p = models.Project(
             name=name,
             owner=user,
@@ -144,10 +174,10 @@ class ModelMixin(object):
         )
         v.save()
         return v
-    
+
     def create_layer(self, user, name='Test Layer', authority_id=1):
         import random
-        slug = random.sample('0123456789abcdefghijklmnopqrstuvwxyz', 16)
+        slug = ''.join(random.sample('0123456789abcdefghijklmnopqrstuvwxyz', 16))
         l = models.Layer(
             name=name,
             owner=user,
@@ -164,7 +194,7 @@ class ModelMixin(object):
             name='Test Presentation',
             authority_id=1):
         import random
-        slug = random.sample('0123456789abcdefghijklmnopqrstuvwxyz', 16)
+        slug = ''.join(random.sample('0123456789abcdefghijklmnopqrstuvwxyz', 16))
         p = models.Presentation(
             name=name,
             owner=user,
@@ -196,7 +226,8 @@ class ModelMixin(object):
         self._add_group_user(group, user, models.UserAuthority.CAN_MANAGE)
 
     def get_project(self, project_id=1):
-        return models.Project.objects.get(id=project_id)
+        return self.create_project(self.get_user())
+        #return models.Project.objects.get(id=project_id)
 
     def create_marker(self, user, project):
         from django.contrib.gis.geos import Point
@@ -240,13 +271,14 @@ class ModelMixin(object):
 
     def create_form(self, name='A title',
                     description='A description', user=None,
-                    authority_id=models.ObjectAuthority.PRIVATE):
+                    authority_id=models.ObjectAuthority.PRIVATE,
+                    project=None):
 
         oa = models.ObjectAuthority.objects.get(
             id=authority_id
         )
         import random
-        slug = random.sample('0123456789abcdefghijklmnopqrstuvwxyz', 16)
+        slug = ''.join(random.sample('0123456789abcdefghijklmnopqrstuvwxyz', 16))
         if user is None:
             user = self.user
         f = models.Form(
@@ -258,7 +290,8 @@ class ModelMixin(object):
             access_authority=oa
         )
         f.save()
-        f.projects.add(self.project)
+        project = project or self.project
+        f.projects.add(project)
         f.save()
         return f
 
@@ -268,7 +301,8 @@ class ModelMixin(object):
             description='A description',
             user=None,
             authority_id=models.ObjectAuthority.PRIVATE,
-            num_fields=2):
+            num_fields=2,
+            project=None):
         '''
         TEXT = 1
         INTEGER = 2
@@ -280,17 +314,17 @@ class ModelMixin(object):
         if user is None:
             user = self.user
         f = self.create_form(name, description, user=user,
-                             authority_id=authority_id)
+                             authority_id=authority_id,
+                             project=project)
         for i in range(0, num_fields):
-            # add 2 fields to form:
             fld = self.create_field(name='Field %s' % (i + 1),
                                 data_type=models.DataType.objects.get(id=(i + 1)),
                                 ordering=(i + 1),
                                 form=f)
             fld.save()
-        f.clear_table_model_cache()
+        f.remove_table_from_cache()
         return f
-    
+
     def create_field(self, form, name='Field 1', data_type=None, ordering=1):
         data_type = data_type or models.DataType.objects.get(id=1)
         f = models.Field(
@@ -304,7 +338,7 @@ class ModelMixin(object):
         )
         f.save()
         return f
-    
+
 
     def insert_form_data_record(self, form, project=None):
 
@@ -373,14 +407,17 @@ class ModelMixin(object):
         return scan
 
     def create_photo(self, user, project, name='Photo Name',
-                     file_name='my_photo.jpg'):
+                     file_name='my_photo.jpg', device='HTC',
+                     point=None):
         photo = models.Photo(
             project=project,
             owner=user,
             last_updated_by=user,
             name=name,
             description='Photo Description',
-            file_name_orig=file_name
+            file_name_orig=file_name,
+            device=device,
+            point=point
         )
         photo.save()
         return photo
@@ -399,10 +436,10 @@ class ModelMixin(object):
         return audio
 
 class ViewAnonymousMixin(ModelMixin):
-    fixtures = ['initial_data.json', 'test_data.json']
+    #fixtures = ['test_data.json']
 
-    def setUp(self):
-        ModelMixin.setUp(self)
+    def setUp(self, load_fixtures=False):
+        ModelMixin.setUp(self, load_fixtures=load_fixtures)
 
     def test_page_200_status_basic_user(self, urls=None, **kwargs):
         if urls is None:
@@ -411,7 +448,7 @@ class ViewAnonymousMixin(ModelMixin):
             #print url
             response = self.client_user.get(url)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            
+
     def test_page_resolves_to_view(self, urls=None):
         if urls is None:
             urls = self.urls
@@ -423,12 +460,12 @@ class ViewAnonymousMixin(ModelMixin):
                 self.view.__name__)
             # print url, func_name, view_name
             self.assertEqual(func_name, view_name)
-            
-class ViewMixin(ViewAnonymousMixin):
-    fixtures = ['initial_data.json', 'test_data.json']
 
-    def setUp(self):
-        ViewAnonymousMixin.setUp(self)
+class ViewMixin(ViewAnonymousMixin):
+    #fixtures = ['test_data.json']
+
+    def setUp(self, load_fixtures=False):
+        ViewAnonymousMixin.setUp(self, load_fixtures=load_fixtures)
 
     def test_page_403_or_302_status_anonymous_user(self, urls=None):
         if urls is None:
@@ -439,9 +476,3 @@ class ViewMixin(ViewAnonymousMixin):
                 status.HTTP_302_FOUND,
                 status.HTTP_403_FORBIDDEN
             ])
-
-
-# import tests from other directories:
-from localground.apps.site.api.tests import *
-from localground.apps.site.tests.views import *
-from localground.apps.site.tests.security import *

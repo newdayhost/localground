@@ -38,44 +38,12 @@ class Print(BaseExtents, BaseMedia, ProjectMixin, BaseGenericRelationMixin):
                                         db_column='form_column_ids')
     form = models.ForeignKey('Form', null=True, blank=True)
     deleted = models.BooleanField(default=False)
-    #layers = models.ManyToManyField('WMSOverlay', null=True, blank=True)
+    
+    filter_fields = BaseMedia.filter_fields + ('name', 'description', 'tags', 'uuid', 'form')
+
     objects = PrintManager()
 
-    @classmethod
-    def filter_fields(cls):
-        from localground.apps.lib.helpers import QueryField, FieldTypes
-        return [
-            QueryField(
-                'project__id',
-                id='project_id',
-                title='Project ID',
-                data_type=FieldTypes.INTEGER),
-            QueryField(
-                'map_title',
-                id='map_title',
-                title='Map Title',
-                operator='like'),
-            QueryField(
-                'owner__username',
-                id='owned_by',
-                title='Owned By'),
-            QueryField(
-                'map_image_path',
-                id='map_image_path',
-                title='File Name'),
-            QueryField(
-                'date_created',
-                id='date_created_after',
-                title='After',
-                data_type=FieldTypes.DATE,
-                operator='>='),
-            QueryField(
-                'date_created',
-                id='date_created_before',
-                title='Before',
-                data_type=FieldTypes.DATE,
-                operator='<=')]
-
+   
     @classmethod
     def inline_form(cls, user):
         from localground.apps.site.forms import get_inline_form_with_tags
@@ -83,6 +51,7 @@ class Print(BaseExtents, BaseMedia, ProjectMixin, BaseGenericRelationMixin):
 
     @property
     def embedded_layers(self):
+        #raise Exception('emdedded')
         from localground.apps.site.models import WMSOverlay
         if not hasattr(self, '_embedded_layers'):
             self._embedded_layers = self.grab(WMSOverlay)
@@ -262,6 +231,7 @@ class Print(BaseExtents, BaseMedia, ProjectMixin, BaseGenericRelationMixin):
         p.southwest = southwest
         p.extents = extents
         p.virtual_path = p.generate_relative_path()
+        p.form = form
         if layout.is_data_entry and form is not None:
             p.form = form
 

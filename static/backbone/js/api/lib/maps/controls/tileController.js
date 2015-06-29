@@ -61,7 +61,7 @@ define(["lib/maps/tiles/mapbox", "lib/maps/tiles/stamen", "jquery"],
                         } else if (sourceName === "google") {
                             mapTypeIDs.unshift(this.providerID);
                         } else {
-                            alert("Error in localground.maps.TileManager: unknown map type");
+                            alert("Error in localground.maps.TileManager: unknown map type: " + sourceName);
                         }
                     });
                     map.mapTypeControlOptions.mapTypeIds = mapTypeIDs;
@@ -142,13 +142,17 @@ define(["lib/maps/tiles/mapbox", "lib/maps/tiles/stamen", "jquery"],
                     return;
                 }
                 var mapType = getTileInfo("id", id),
-                    sourceName = mapType.sourceName.toLowerCase(),
+                    sourceName = null,
+                    mapTypeID = null;
+                if (mapType) {
+                    sourceName = mapType.sourceName.toLowerCase();
                     mapTypeID = mapType.name;
-                if (sourceName === "google") {
-                    mapTypeID = mapType.providerID;
+                    if (sourceName === "google") {
+                        mapTypeID = mapType.providerID;
+                    }
+                    map.setMapTypeId(mapTypeID);
+                    this.app.vent.trigger("map-tiles-changed");
                 }
-                map.setMapTypeId(mapTypeID);
-                this.app.vent.trigger("map-tiles-changed");
             };
 
 

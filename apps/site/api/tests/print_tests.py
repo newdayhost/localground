@@ -7,8 +7,36 @@ import json
 from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
 
+class LayoutMixin(object):
+    metadata = {
+        'display_name': {'read_only': False, 'required': False, 'type': 'string'},
+        'id': {'read_only': True, 'required': False, 'type': 'integer'},
+        'name': {'read_only': False, 'required': True, 'type': 'string'}
+    }
 
-class ApiLayoutListTest(test.TestCase, ViewMixinAPI):
+def get_metadata():
+    return {
+        'overlay_type': {'read_only': True, 'required': False, 'type': 'field'},
+        'layout': {'read_only': False, 'required': True, 'type': 'field'},
+        'uuid': {'read_only': True, 'required': False, 'type': 'field'},
+        'tags': {'read_only': False, 'required': False, 'type': 'string'},
+        'map_provider_url': {'read_only': True, 'required': False, 'type': 'field'},
+        'center': {'read_only': False, 'required': True, 'type': 'geojson'},
+        'thumb': {'read_only': True, 'required': False, 'type': 'field'},
+        'zoom': {'read_only': False, 'required': False, 'type': 'integer'},
+        'map_title': {'read_only': False, 'required': True, 'type': 'string'},
+        'map_provider': {'read_only': False, 'required': True, 'type': 'field'},
+        'pdf': {'read_only': True, 'required': False, 'type': 'field'},
+        'project_id': {'read_only': False, 'required': True, 'type': 'field'},
+        'id': {'read_only': True, 'required': False, 'type': 'integer'},
+        'layout_url': {'read_only': True, 'required': False, 'type': 'field'},
+        'instructions': {'read_only': False, 'required': True, 'type': 'memo'}
+    }
+
+class PrintMixin(object):
+    metadata = get_metadata()
+
+class ApiLayoutListTest(test.TestCase, ViewMixinAPI, LayoutMixin):
 
     def setUp(self):
         ViewMixinAPI.setUp(self)
@@ -16,7 +44,7 @@ class ApiLayoutListTest(test.TestCase, ViewMixinAPI):
         self.view = views.LayoutViewSet.as_view({'get': 'list'})
 
 
-class ApiLayoutInstanceTest(test.TestCase, ViewMixinAPI):
+class ApiLayoutInstanceTest(test.TestCase, ViewMixinAPI, LayoutMixin):
 
     def setUp(self):
         ViewMixinAPI.setUp(self)
@@ -27,7 +55,7 @@ class ApiLayoutInstanceTest(test.TestCase, ViewMixinAPI):
         self.view = views.LayoutViewSet.as_view({'get': 'detail'})
 
 
-class ApiPrintListTest(test.TestCase, ViewMixinAPI):
+class ApiPrintListTest(test.TestCase, ViewMixinAPI, PrintMixin):
 
     def setUp(self):
         ViewMixinAPI.setUp(self)
@@ -76,15 +104,22 @@ class ApiPrintListTest(test.TestCase, ViewMixinAPI):
         self.assertEqual(new_object.map_provider.id, layout)
 
 
-class ApiPrintInstanceTest(test.TestCase, ViewMixinAPI):
+class ApiPrintInstanceTest(test.TestCase, ViewMixinAPI, PrintMixin):
 
     def setUp(self):
-        ViewMixinAPI.setUp(self)
+        ViewMixinAPI.setUp(self, load_fixtures=True)
         self.print_object = self.create_print()
         self.url = '/api/0/prints/%s/' % self.print_object.id
         self.urls = [self.url]
         self.view = views.PrintInstance.as_view()
         self.model = models.Print
+        self.metadata = get_metadata()
+        self.metadata.update({
+            'center': {'read_only': True, 'required': False, 'type': 'geojson'},
+            'layout': {'read_only': True, 'required': False, 'type': 'field'},
+            'map_provider': {'read_only': True, 'required': False, 'type': 'field'}, 
+            'project_id': {'read_only': False, 'required': False, 'type': 'field'}
+        })
 
     def test_update_print_using_patch(self, **kwargs):
         name, description, tags = 'A', 'B', 'C'

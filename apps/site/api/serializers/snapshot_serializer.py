@@ -3,31 +3,47 @@ from localground.apps.site.api.serializers.base_serializer import BaseNamedSeria
 from localground.apps.site.api.serializers.photo_serializer import PhotoSerializer
 from localground.apps.site.api.serializers.barcoded_serializer import ScanSerializer
 from localground.apps.site.api.serializers.audio_serializer import AudioSerializer
-from localground.apps.site.api.serializers.form_serializer import create_record_serializer, \
+from localground.apps.site.api.serializers.record_serializer import create_record_serializer, \
     create_compact_record_serializer
 from localground.apps.site.api.serializers.marker_serializer import MarkerSerializerCounts
-from rest_framework import serializers
+from rest_framework import serializers, validators
 from localground.apps.site import models, widgets
 from localground.apps.site.api import fields
 
-
 class SnapshotSerializer(BaseNamedSerializer):
-    name = serializers.CharField(required=True)
-    access = serializers.SerializerMethodField('get_access')
-    entities = fields.EntitiesField(widget=widgets.JSONWidget, required=False)
-    center = fields.GeometryField(help_text='Assign a GeoJSON string',
-                                  required=True,
-                                  widget=widgets.JSONWidget,
-                                  point_field_name='center')
-    basemap = serializers.PrimaryKeyRelatedField()
+    name = serializers.CharField(required=False, allow_null=True)
+    access = serializers.SerializerMethodField()
+    slug = serializers.SlugField(
+        max_length=100,
+        validators=[ validators.UniqueValidator(models.Snapshot.objects.all()) ]
+    )
+    entities = fields.EntitiesField(
+        style={'base_template': 'textarea.html'},
+        required=False)
+    center = fields.GeometryField(
+                help_text='Assign a GeoJSON string',
+                required=True,
+                style={'base_template': 'textarea.html'}
+            )
+    basemap = serializers.PrimaryKeyRelatedField(queryset=models.WMSOverlay.objects.all())
     zoom = serializers.IntegerField(min_value=1, max_value=20, default=17)
-    children = serializers.SerializerMethodField('get_children')
+    children = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Snapshot
         fields = BaseNamedSerializer.Meta.fields + \
             ('owner', 'slug', 'access', 'zoom', 'center', 'basemap', 'entities', 'children')
         depth = 0
+        
+        '''
+        #this doesn't work b/c the owner is auto-populated
+        validators = [ validators.UniqueTogetherValidator(
+            queryset=models.Snapshot.objects.all(),
+            fields=['slug', 'owner'],
+            message='There is already a friendly url (slug) of the same name that is owned by you. Please rename.'
+        )]
+        '''
+        
 
     def get_access(self, obj):
         return obj.access_authority.name
@@ -135,9 +151,9 @@ class SnapshotSerializer(BaseNamedSerializer):
 
 
 class SnapshotDetailSerializer(SnapshotSerializer):
-    children = serializers.SerializerMethodField('get_children')
+    children = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Snapshot
-        fields = SnapshotSerializer.Meta.fields  # + ('children',)
+        fields = SnapshotSerializer.Meta.fields + ('children',)
         depth = 0

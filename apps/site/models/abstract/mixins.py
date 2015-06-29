@@ -2,24 +2,24 @@ from django.contrib.gis.db import models
 
 
 class ProjectMixin(models.Model):
-    project = models.ForeignKey('Project', related_name='%(class)s')
+    project = models.ForeignKey('Project', related_name='%(class)s+')
 
     class Meta:
         abstract = True
 
 
 class BaseGenericRelationMixin(models.Model):
-    from django.contrib.contenttypes import generic
+    from django.contrib.contenttypes import fields
     _photos = None
     _audio = None
     _map_images = None
     _markers = None
 
-    entities = generic.GenericRelation(
+    entities = fields.GenericRelation(
         'GenericAssociation',
         content_type_field='source_type',
         object_id_field='source_id',
-        related_name="%(app_label)s_%(class)s_related_entity")
+        related_query_name="%(app_label)s_%(class)s_related_entity")
 
     class Meta:
         abstract = True

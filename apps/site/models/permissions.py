@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from localground.apps.site.models import Base
 from datetime import datetime
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes import fields
+from django.conf import settings
 
 
 class BasePermissions(models.Model):
@@ -15,7 +16,7 @@ class BasePermissions(models.Model):
                                          db_column='view_authority',
                                          verbose_name='Sharing')
     access_key = models.CharField(max_length=16, null=True, blank=True)
-    users = generic.GenericRelation('UserAuthorityObject')
+    users = fields.GenericRelation('UserAuthorityObject')
 
     def _has_user_permissions(self, user, authority_id):
         # anonymous or null users don't have user-level permissions:
@@ -111,7 +112,7 @@ class UserAuthorityObject(models.Model):
     Model that assigns a particular User (auth_user) and UserAuthority object to
     a particular Group.
     """
-    user = models.ForeignKey('auth.User')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     authority = models.ForeignKey('UserAuthority')
     time_stamp = models.DateTimeField(default=datetime.now)
     granted_by = models.ForeignKey(
@@ -121,7 +122,7 @@ class UserAuthorityObject(models.Model):
     # Following fields are required for using GenericForeignKey
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    object = generic.GenericForeignKey()
+    object = fields.GenericForeignKey()
 
     def to_dict(self):
         return {
@@ -138,7 +139,7 @@ class UserAuthorityObject(models.Model):
 
 
 class ObjectUserPermissions(models.Model):
-    user = models.ForeignKey('auth.User',
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              db_column='user_id', on_delete=models.DO_NOTHING)
     user_authority = models.ForeignKey(
         'UserAuthority',
@@ -153,7 +154,7 @@ class ObjectUserPermissions(models.Model):
 class AudioUser(ObjectUserPermissions):
     audio = models.ForeignKey(
         'Audio',
-        db_column='id',
+        db_column='audio_id',
         on_delete=models.DO_NOTHING,
         related_name='authuser')
 
@@ -166,7 +167,7 @@ class AudioUser(ObjectUserPermissions):
 class PhotoUser(ObjectUserPermissions):
     photo = models.ForeignKey(
         'Photo',
-        db_column='id',
+        db_column='photo_id',
         on_delete=models.DO_NOTHING,
         related_name='authuser')
 
@@ -179,7 +180,7 @@ class PhotoUser(ObjectUserPermissions):
 class VideoUser(ObjectUserPermissions):
     video = models.ForeignKey(
         'Video',
-        db_column='id',
+        db_column='video_id',
         on_delete=models.DO_NOTHING,
         related_name='authuser')
 
@@ -192,7 +193,7 @@ class VideoUser(ObjectUserPermissions):
 class MarkerUser(ObjectUserPermissions):
     marker = models.ForeignKey(
         'Marker',
-        db_column='id',
+        db_column='marker_id',
         on_delete=models.DO_NOTHING,
         related_name='authuser')
 
@@ -205,7 +206,7 @@ class MarkerUser(ObjectUserPermissions):
 class PrintUser(ObjectUserPermissions):
     print_obj = models.ForeignKey(
         'Print',
-        db_column='id',
+        db_column='print_id',
         on_delete=models.DO_NOTHING,
         related_name='authuser')
 
@@ -218,7 +219,7 @@ class PrintUser(ObjectUserPermissions):
 class AttachmentUser(ObjectUserPermissions):
     attachment = models.ForeignKey(
         'Attachment',
-        db_column='id',
+        db_column='attachment_id',
         on_delete=models.DO_NOTHING,
         related_name='authuser')
 
@@ -231,7 +232,7 @@ class AttachmentUser(ObjectUserPermissions):
 class ScanUser(ObjectUserPermissions):
     scan = models.ForeignKey(
         'Scan',
-        db_column='id',
+        db_column='scan_id',
         on_delete=models.DO_NOTHING,
         related_name='authuser')
 
@@ -244,7 +245,7 @@ class ScanUser(ObjectUserPermissions):
 class SnapshotUser(ObjectUserPermissions):
     snapshot = models.ForeignKey(
         'Snapshot',
-        db_column='id',
+        db_column='snapshot_id',
         on_delete=models.DO_NOTHING,
         related_name='authuser')
 
@@ -255,7 +256,7 @@ class SnapshotUser(ObjectUserPermissions):
 
 
 class ProjectUser(ObjectUserPermissions):
-    project = models.ForeignKey('Project', db_column='id',
+    project = models.ForeignKey('Project', db_column='project_id',
                                 on_delete=models.DO_NOTHING,
                                 related_name='authuser')
 
@@ -266,7 +267,7 @@ class ProjectUser(ObjectUserPermissions):
 
 
 class FormUser(ObjectUserPermissions):
-    form = models.ForeignKey('Form', db_column='id',
+    form = models.ForeignKey('Form', db_column='form_id',
                              on_delete=models.DO_NOTHING,
                              related_name='authuser')
 
@@ -279,7 +280,7 @@ class FormUser(ObjectUserPermissions):
 class PresentationUser(ObjectUserPermissions):
     presentation = models.ForeignKey(
         'Presentation',
-        db_column='id',
+        db_column='presentation_id',
         on_delete=models.DO_NOTHING,
         related_name='authuser')
 
@@ -291,7 +292,7 @@ class PresentationUser(ObjectUserPermissions):
 class LayerUser(ObjectUserPermissions):
     layer = models.ForeignKey(
         'Layer',
-        db_column='id',
+        db_column='layer_id',
         on_delete=models.DO_NOTHING,
         related_name='authuser')
 

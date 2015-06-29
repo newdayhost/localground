@@ -20,6 +20,7 @@ class Form(BaseNamed, BasePermissions):
     objects = FormManager()
     _model_class = None
     _data_entry_form_class = None
+    filter_fields = BaseNamed.filter_fields + ('slug',)
 
     class Meta:
         app_label = 'site'
@@ -70,16 +71,19 @@ class Form(BaseNamed, BasePermissions):
     @classmethod
     def inline_form(cls, user):
         from localground.apps.site.forms import FormInlineUpdateForm
+
         return FormInlineUpdateForm
 
     @classmethod
     def get_form(cls):
         from localground.apps.site.forms import FormCreateForm
+
         return FormCreateForm
 
     @classmethod
     def sharing_form(cls):
         from localground.apps.site.forms import FormPermissionsForm
+
         return FormPermissionsForm
 
     @classmethod
@@ -88,10 +92,10 @@ class Form(BaseNamed, BasePermissions):
         from django.forms import ModelForm
 
         class InlineForm(ModelForm):
-
             def __init__(self, *args, **kwargs):
                 super(InlineForm, self).__init__(*args, **kwargs)
                 from localground.apps.site import models
+
                 self.fields[
                     "projects"].queryset = models.Project.objects.get_objects(user)
                 self.fields["projects"].help_text = 'Give one or more of your projects \
@@ -100,6 +104,7 @@ class Form(BaseNamed, BasePermissions):
 
             class Meta:
                 from django import forms
+
                 model = cls
                 fields = ('name', 'description', 'tags', 'access_authority',
                           'slug', 'access_key', 'projects')
@@ -120,6 +125,7 @@ class Form(BaseNamed, BasePermissions):
         # Not sure where to call this...probably in a try/except block
         from localground.apps.site.models import Form
         from django.db.models.loading import cache
+        from django.apps import apps
         # the prefetch_related really cuts down on queries...but the DYNAMIC_MODELS_CACHED
         # flag isn't working!  Need to come up w/something else
         forms = Form.objects.prefetch_related(
@@ -127,27 +133,32 @@ class Form(BaseNamed, BasePermissions):
             'field_set__data_type').all()
         for form in forms:
             m = form.TableModel
-            cache.app_models[
-                m._meta.app_label][
-                m._meta.object_name.lower()] = m
+            
+            #first remove from cache:
+            app_models = apps.all_models[form.TableModel._meta.app_label]
+            del app_models[form.TableModel._meta.model_name]
+            
+            # then register
+            apps.register_model(m._meta.app_label, m)
 
     def clear_table_model_cache(self):
-        from django.db.models.loading import cache
-        if cache.app_models['site'].get('form_%s' % self.id):
-            del cache.app_models['site']['form_%s' % self.id]
+        # see: http://dynamic-models.readthedocs.org/en/latest/topics/model.html#topics-model
+        from django.conf import settings
+        from importlib import import_module
+        from django.core.urlresolvers import clear_url_caches
+        from django.apps import apps
+
+        app_models = apps.all_models[self.TableModel._meta.app_label]
+        if app_models.get(self.TableModel._meta.model_name):
+            del app_models[self.TableModel._meta.model_name]
+        
+        reload(import_module(settings.ROOT_URLCONF))
+        clear_url_caches()
+        apps.clear_cache()
         self._fields = None
 
     @property
     def TableModel(self):
-        # This may be dangerous -- pretty sure the cache spans multiple
-        # sessions.  If weird bugs appear, this is a suspect method
-        '''from django.db.models.loading import cache
-        if cache.app_models['site'].get('form_%s' % self.id) is None:
-            cache.app_models['site'][
-                'form_%s' %
-                self.id] = ModelClassBuilder(self).model_class
-        return cache.app_models['site']['form_%s' % self.id]
-        '''
         return ModelClassBuilder(self).model_class
 
     def has_access(self, user, access_key=None):
@@ -159,6 +170,7 @@ class Form(BaseNamed, BasePermissions):
             return True
         else:
             from django.db.models import Q
+
             projects = self.projects.filter(Q(owner=user) |
                                             Q(users__user=user))
             return len(projects) > 0
@@ -169,34 +181,6 @@ class Form(BaseNamed, BasePermissions):
             dfb = DynamicFormBuilder(self)
             self._data_entry_form_class = dfb.data_entry_form_class
         return self._data_entry_form_class
-
-    @classmethod
-    def filter_fields(cls):
-        from localground.apps.lib.helpers import QueryField, FieldTypes
-        return [
-            QueryField(
-                'name',
-                title='Name',
-                operator='like'),
-            QueryField(
-                'description',
-                title='Description',
-                operator='like'),
-            QueryField(
-                'tags',
-                title='Tags'),
-            QueryField(
-                'date_created',
-                id='date_created_after',
-                title='After',
-                data_type=FieldTypes.DATE,
-                operator='>='),
-            QueryField(
-                'date_created',
-                id='date_created_before',
-                title='Before',
-                data_type=FieldTypes.DATE,
-                operator='<=')]
 
     def sync_db(self):
         mcb = ModelClassBuilder(self)
@@ -221,7 +205,7 @@ class Form(BaseNamed, BasePermissions):
         if not hasattr(self, '_fields') or self._fields is None:
             self._fields = list(
                 self.field_set.select_related('data_type').all()
-                .order_by('ordering',)
+                .order_by('ordering', )
             )
         return self._fields
 
@@ -240,6 +224,7 @@ class Form(BaseNamed, BasePermissions):
 
     def save(self, user=None, *args, **kwargs):
         from localground.apps.lib.helpers import generic
+
         is_new = self.pk is None
 
         # 1. ensure that user doesn't inadvertently change the data type of the
@@ -281,24 +266,22 @@ class Form(BaseNamed, BasePermissions):
                 f.to_dict() for f in self.get_fields(
                     print_only=print_only)])
 
-    @transaction.commit_manually
     def add_records_batch(self, list_of_dictionaries, user):
         total_num = 0
         batch_num = 500
-        counter = 0
         fields = self.fields
-        for d in list_of_dictionaries:
-            self.add_record(d, user, fields=fields)
-            counter += 1
-            if counter == batch_num:
-                total_num += batch_num
-                print('Committing the next %s records...' % batch_num)
-                transaction.commit()
-                print('Committed %s records total.' % total_num)
-                counter = 0
-        print('Committing the next %s records...' % batch_num)
-        transaction.commit()
-        print('Committed %s records total.' % total_num)
+
+        def batches(dicts, batch_size):
+            for i in range(0, len(dicts), batch_size):
+                yield dicts[i:i+batch_size]
+
+        for batch in batches(list_of_dictionaries, batch_num):
+            with transaction.atomic():
+                for d in batch:
+                    self.add_record(d, user, fields=fields)
+                total_num += len(batch)
+                print('Committing the next %s records...' % len(batch))
+            print('Committed %s records total.' % total_num)
 
     def add_record(self, dictionary, user, fields=None):
         d = dictionary
@@ -351,6 +334,7 @@ class Form(BaseNamed, BasePermissions):
 
     def update_blank_status(self, id_list, user, blank_status):
         from django.forms.models import model_to_dict
+
         if len(id_list) > 0:
             recs = self.TableModel.objects.filter(id__in=id_list)
             snippet_ids = []
@@ -384,7 +368,7 @@ class Form(BaseNamed, BasePermissions):
         num_deletes = 0
         if attachment_id is not None:
             objects = list(
-                self.TableModel.objects .filter(
+                self.TableModel.objects.filter(
                     snippet__source_attachment__id=attachment_id))
             num_deletes = self._delete_records(objects)
         return '%s records were deleted from the %s table.' % (
@@ -392,6 +376,7 @@ class Form(BaseNamed, BasePermissions):
 
     def _delete_records(self, records):
         from django.forms.models import model_to_dict
+
         num_deletes, snippet_ids = 0, []
         for r in records:
             # for each record, there are a number of snippet references.  Find
@@ -407,6 +392,7 @@ class Form(BaseNamed, BasePermissions):
 
     def source_table_exists(self):
         from django.db import connection, transaction
+
         try:
             table_name = self.table_name
             cursor = connection.cursor()
@@ -423,15 +409,21 @@ class Form(BaseNamed, BasePermissions):
             # drop the underlying table if it exists:
             if self.source_table_exists():
                 from django.db import connection
+
                 cursor = connection.cursor()
                 cursor.execute('drop table %s' % self.table_name)
+                cursor.close()
 
         # remove referenced ContentType
         try:
             from django.contrib.contenttypes.models import ContentType
-            ct = ContentType.objects.get(name='form_%s' % self.id)
+            ct = ContentType.objects.get(model='form_%s' % self.id)
             ct.delete()
         except ContentType.DoesNotExist:
             pass
-
+        
+        self.clear_table_model_cache()
         super(Form, self).delete(**kwargs)
+        
+    def remove_table_from_cache(self):
+        self.clear_table_model_cache()

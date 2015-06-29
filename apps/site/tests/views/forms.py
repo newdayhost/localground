@@ -10,7 +10,7 @@ from localground.apps.site.models import Field
 class UpdateFormTest(test.TestCase, ViewMixin):
 
     def setUp(self):
-        ViewMixin.setUp(self)
+        ViewMixin.setUp(self, load_fixtures=True)
         self.form = self.create_form(name="Class Form")
         self.urls = [
             '/profile/forms/%s/' % self.form.id,
@@ -47,7 +47,7 @@ class UpdateFormTest(test.TestCase, ViewMixin):
             d[key]['field'] = f
 
         # clear cache
-        self.form.clear_table_model_cache()
+        self.form.remove_table_from_cache()
         self.assertEqual(len(d.keys()), len(self.form.fields))
 
         # query the new form:

@@ -39,6 +39,7 @@ class ProjectMixin(GroupMixin):
         if ordering_field:
             q = q.order_by(ordering_field)
         return q  # self.populate_tags_for_queryset(q)
+    
 
     def to_dict_list(self):
         # does this need to be implemented, or can we just rely on
@@ -51,8 +52,8 @@ class ProjectQuerySet(QuerySet, ProjectMixin):
 
 
 class ProjectManager(models.GeoManager, ProjectMixin):
-
-    def get_query_set(self):
+    
+    def get_queryset(self):
         return ProjectQuerySet(self.model, using=self._db)
 
 
@@ -99,14 +100,14 @@ class SnapshotMixin(GroupMixin):
         return []
 
 
-class SnapshotQuerySet(QuerySet, SnapshotMixin):
-    pass
+#class SnapshotQuerySet(QuerySet, SnapshotMixin):
+#    pass
 
 
 class SnapshotManager(models.GeoManager, SnapshotMixin):
-
-    def get_query_set(self):
-        return SnapshotQuerySet(self.model, using=self._db)
+    #def get_queryset(self):
+    #    return SnapshotQuerySet(self.model, using=self._db)
+    pass
 
 
 class FormMixin(GroupMixin):
@@ -200,13 +201,18 @@ class FormMixin(GroupMixin):
 
 
 class FormQuerySet(QuerySet, FormMixin):
-    pass
+    
+    def delete(self):
+        # ensure that the model's overrided delete method is called here
+        for m in list(self):
+            m.delete()
 
 
 class FormManager(models.GeoManager, FormMixin):
-
-    def get_query_set(self):
+    
+    def get_queryset(self):
         return FormQuerySet(self.model, using=self._db)
+
 
 
 class PresentationMixin(GroupMixin):
@@ -233,15 +239,15 @@ class PresentationMixin(GroupMixin):
         return q
 
 
-class PresentationQuerySet(QuerySet, PresentationMixin):
-    pass
+#class PresentationQuerySet(QuerySet, PresentationMixin):
+#    pass
 
 
 class PresentationManager(models.GeoManager, PresentationMixin):
+    #def get_queryset(self):
+    #    return PresentationQuerySet(self.model, using=self._db)
+    pass
 
-    def get_query_set(self):
-        return PresentationQuerySet(self.model, using=self._db)
-    
     
 class LayerMixin(GroupMixin):
     prefetch_fields = []
@@ -273,11 +279,11 @@ class LayerMixin(GroupMixin):
         return []
 
 
-class LayerQuerySet(QuerySet, LayerMixin):
-    pass
+#class LayerQuerySet(QuerySet, LayerMixin):
+#    pass
 
 
 class LayerManager(models.GeoManager, LayerMixin):
-
-    def get_query_set(self):
-        return LayerQuerySet(self.model, using=self._db)
+    #def get_queryset(self):
+    #    return LayerQuerySet(self.model, using=self._db)
+    pass

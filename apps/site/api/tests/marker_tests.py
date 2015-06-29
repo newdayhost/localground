@@ -7,6 +7,23 @@ import json
 from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
 
+def get_metadata():
+    return {
+        'photo_count': {'read_only': True, 'required': False, 'type': 'field'},
+        'description': {'read_only': False, 'required': False, 'type': 'memo'},
+        'tags': {'read_only': False, 'required': False, 'type': 'string'},
+        'url': {'read_only': True, 'required': False, 'type': 'field'},
+        'audio_count': {'read_only': True, 'required': False, 'type': 'field'},
+        'overlay_type': {'read_only': True, 'required': False, 'type': 'field'},
+        'map_image_count': {'read_only': True, 'required': False, 'type': 'field'},
+        'geometry': {'read_only': False, 'required': False, 'type': 'geojson'},
+        'record_count': {'read_only': True, 'required': False, 'type': 'field'},
+        'owner': {'read_only': True, 'required': False, 'type': 'field'},
+        'project_id': {'read_only': False, 'required': False, 'type': 'field'},
+        'id': {'read_only': True, 'required': False, 'type': 'integer'},
+        'color': {'read_only': False, 'required': False, 'type': 'color'},
+        'name': {'read_only': False, 'required': False, 'type': 'string'}
+    }
 
 class GeomMixin(object):
     Point = {
@@ -40,6 +57,11 @@ class ApiMarkerListTest(test.TestCase, ViewMixinAPI, GeomMixin):
         ViewMixinAPI.setUp(self)
         self.urls = ['/api/0/markers/']
         self.view = views.MarkerList.as_view()
+        self.metadata = get_metadata()
+        self.metadata.update({
+            'update_metadata': {'read_only': True, 'required': False, 'type': 'field'}
+        })
+        
 
     def test_bad_json_create_fails(self, **kwargs):
         for k in ['Crazy1', 'Crazy2']:
@@ -68,15 +90,17 @@ class ApiMarkerListTest(test.TestCase, ViewMixinAPI, GeomMixin):
                 geom = getattr(self, k)
                 response = self.client_user.post(
                     url,
-                    data=urllib.urlencode(
-                        {
-                            'geometry': geom,
-                            'name': name,
-                            'description': description,
-                            'color': color,
-                            'project_id': self.project.id}),
+                    data=urllib.urlencode({
+                        'geometry': geom,
+                        'name': name,
+                        'description': description,
+                        'color': color,
+                        'project_id': self.project.id
+                    }),
                     HTTP_X_CSRFTOKEN=self.csrf_token,
                     content_type="application/x-www-form-urlencoded")
+                if response.status_code != status.HTTP_201_CREATED:
+                    print response.data
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                 new_marker = models.Marker.objects.all().order_by('-id',)[0]
                 self.assertEqual(new_marker.name, name)
@@ -93,10 +117,15 @@ class ApiMarkerListTest(test.TestCase, ViewMixinAPI, GeomMixin):
 class ApiMarkerInstanceTest(test.TestCase, ViewMixinAPI, GeomMixin):
 
     def setUp(self):
-        ViewMixinAPI.setUp(self)
+        ViewMixinAPI.setUp(self, load_fixtures=True)
         self.marker = self.get_marker()
         self.urls = ['/api/0/markers/%s/' % self.marker.id]
         self.view = views.MarkerInstance.as_view()
+        self.metadata = get_metadata()
+        self.metadata.update({
+            'children': {'read_only': True, 'required': False, 'type': u'field'},
+            'form_ids': {'read_only': True, 'required': False, 'type': u'field'}
+        })
 
     def test_bad_json_update_fails(self, **kwargs):
         for k in ['Crazy1', 'Crazy2']:

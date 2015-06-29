@@ -4,7 +4,6 @@ from localground.apps.site import models
 from localground.apps.site.api.tests.base_tests import ViewMixinAPI
 from rest_framework import status
 
-
 class APIRelatedMediaMixin(object):
 
     def create_relation(self, entity_type, id=1, ordering=1):
@@ -20,7 +19,6 @@ class APIRelatedMediaMixin(object):
         r.save()
         return r
 
-
 class ApiRelatedMediaListTest(
         test.TestCase,
         ViewMixinAPI,
@@ -28,14 +26,26 @@ class ApiRelatedMediaListTest(
 
     def setUp(self):
         ViewMixinAPI.setUp(self)
-        self.marker = self.get_marker()
+        #self.marker = self.get_marker()
+        self.marker = self.create_marker(self.user, self.project)
         url = '/api/0/markers/%s/%s/'
         self.urls = [
             url % (self.marker.id, 'photos'),
             url % (self.marker.id, 'audio')
             #url % (self.marker.id, 'map-images')
         ]
+        self.metadata = {
+            "object_id": { "type": "integer", "required": True, "read_only": False },
+            "ordering": { "type": "integer", "required": False, "read_only": False },
+            "turned_on": {"type": "boolean", "required": False, "read_only": False },
+            "relation": { "type": "field", "required": False, "read_only": True }
+        }
         self.view = views.RelatedMediaList.as_view()
+        
+        #create 1 photo and 1 audio object:
+        self.photo = self.create_photo(self.user, self.project)
+        self.audio = self.create_audio(self.user, self.project)
+        
 
     def test_page_404_if_invalid_marker_id(self, **kwargs):
         url = '/api/0/markers/%s/%s/'
@@ -49,6 +59,7 @@ class ApiRelatedMediaListTest(
 
     def test_attach_media_to_marker(self, **kwargs):
         source_type = models.Marker.get_content_type()
+        entity_id = self.photo.id # id should be the same for both photo and audio object
         for i, url in enumerate(self.urls):
             entity_type = models.Base.get_model(
                 model_name_plural=url.split('/')[-2]
@@ -64,11 +75,13 @@ class ApiRelatedMediaListTest(
 
             # 2) append object to marker:
             response = self.client_user.post(url, {
-                'object_id': 1,
-                'ordering': i
-            },
+                    'object_id': entity_id,
+                    'ordering': i
+                },
                 HTTP_X_CSRFTOKEN=self.csrf_token
             )
+            if response.status_code != status.HTTP_201_CREATED:
+                print response.data
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
             # 3) Make sure it's in there:
@@ -97,42 +110,48 @@ class ApiRelatedMediaInstanceTest(
         test.TestCase,
         ViewMixinAPI,
         APIRelatedMediaMixin):
-
+    
+    
     def setUp(self):
         ViewMixinAPI.setUp(self)
-        self.marker = self.get_marker()
-        self.create_relation(models.Photo.get_content_type(), id=1)
-        self.create_relation(models.Audio.get_content_type(), id=1)
-        url = '/api/0/markers/%s/%s/'
-        self.urls = [
-            url % (self.marker.id, 'photos'),
-            url % (self.marker.id, 'audio')
-        ]
+        self.marker = self.create_marker(self.user, self.project)
+        self.metadata = {
+            "ordering": { "type": "integer", "required": False, "read_only": False },
+            "turned_on": { "type": "boolean", "required": False, "read_only": False },
+            "parent": { "type": "field", "required": False, "read_only": True },
+            "child": { "type": "field", "required": False, "read_only": True }
+        }
         self.view = views.RelatedMediaInstance.as_view()
-
-    '''
-	def test_page_403_or_302_status_anonymous_user(self):
-		url = '/api/0/markers/%s/%s/%s/'
-		urls = [
-			url % (self.marker.id, 'photos', 1),
-			url % (self.marker.id, 'audio', 1)
-		]
-		ViewMixinAPI.test_page_403_or_302_status_anonymous_user(self, urls=urls)
-	'''
-
+        
+        # create 2 photo, 2 audio, and 2 relation objecs:
+        self.photo1 = self.create_photo(self.user, self.project)
+        self.photo2 = self.create_photo(self.user, self.project)
+        self.audio1 = self.create_audio(self.user, self.project)
+        self.audio2 = self.create_audio(self.user, self.project)
+        self.create_relation(models.Photo.get_content_type(), id=self.photo1.id)
+        self.create_relation(models.Audio.get_content_type(), id=self.audio1.id)
+        
+        # create urls:
+        url = '/api/0/markers/%s/%s/%s/'
+        self.urls = [
+            url % (self.marker.id, 'photos', self.photo1.id),
+            url % (self.marker.id, 'audio', self.audio1.id)
+        ]
+        
+        
     def test_page_200_status_basic_user(self, **kwargs):
         url = '/api/0/markers/%s/%s/%s/'
         urls = [
-            url % (self.marker.id, 'photos', 1),
-            url % (self.marker.id, 'audio', 1)
+            url % (self.marker.id, 'photos', self.photo1.id),
+            url % (self.marker.id, 'audio', self.audio1.id)
         ]
         ViewMixinAPI.test_page_200_status_basic_user(self, urls=urls)
 
     def test_page_resolves_to_view(self):
         url = '/api/0/markers/%s/%s/%s/'
         urls = [
-            url % (self.marker.id, 'photos', 1),
-            url % (self.marker.id, 'audio', 1)
+            url % (self.marker.id, 'photos', self.photo1.id),
+            url % (self.marker.id, 'audio', self.audio1.id)
         ]
         ViewMixinAPI.test_page_resolves_to_view(self, urls=urls)
 
@@ -143,13 +162,14 @@ class ApiRelatedMediaInstanceTest(
         (had to dig through Django's middleware/csrf.py to sort that out)
         '''
         source_type = models.Marker.get_content_type()
-        for i, url in enumerate(self.urls):
+        url = '/api/0/markers/%s/%s/'
+        for i, url in enumerate([ url % (self.marker.id, 'photos'), url % (self.marker.id, 'audio') ]):
             entity_type = models.Base.get_model(
                 model_name_plural=url.split('/')[-2]
             ).get_content_type()
 
             # 0)  Attach media to marker
-            entity_id = 2
+            entity_id = self.photo2.id
             self.create_relation(entity_type, id=entity_id)
 
             # 1) make sure that the object is appended to the marker:
@@ -187,13 +207,14 @@ class ApiRelatedMediaInstanceTest(
         https://github.com/jgorset/django-respite/issues/38
         '''
         source_type = models.Marker.get_content_type()
-        for i, url in enumerate(self.urls):
+        url = '/api/0/markers/%s/%s/'
+        for i, url in enumerate([ url % (self.marker.id, 'photos'), url % (self.marker.id, 'audio') ]):
             entity_type = models.Base.get_model(
                 model_name_plural=url.split('/')[-2]
             ).get_content_type()
 
             # Attach media to marker
-            entity_id = 2
+            entity_id = self.photo2.id
             relation = self.create_relation(entity_type, id=entity_id)
             self.assertEqual(relation.ordering, 1)
             self.assertEqual(relation.turned_on, False)
@@ -216,23 +237,22 @@ class ApiRelatedMediaInstanceTest(
 
     def test_update_relation_using_patch(self, **kwargs):
         source_type = models.Marker.get_content_type()
-        for i, url in enumerate(self.urls):
+        url = '/api/0/markers/%s/%s/'
+        for i, url in enumerate([ url % (self.marker.id, 'photos'), url % (self.marker.id, 'audio') ]):
             entity_type = models.Base.get_model(
                 model_name_plural=url.split('/')[-2]
             ).get_content_type()
 
             # Attach media to marker
-            entity_id = 2
+            entity_id = self.photo2.id
             relation = self.create_relation(entity_type, id=entity_id)
             self.assertEqual(relation.turned_on, False)
             import urllib
             response = self.client_user.patch(
-                '%s%s/' %
-                (url,
-                 entity_id),
-                data=urllib.urlencode(
-                    {
-                        'turned_on': True}),
+                '%s%s/' % (url, entity_id),
+                data=urllib.urlencode({
+                    'turned_on': True
+                }),
                 HTTP_X_CSRFTOKEN=self.csrf_token,
                 content_type="application/x-www-form-urlencoded")
             self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -3,7 +3,7 @@ from localground.apps.site.managers import RecordManager
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db import models
 from datetime import datetime
-from django.db.models.loading import cache
+#from django.db.models.loading import cache
 from localground.apps.lib.helpers import get_timestamp_no_milliseconds
 from localground.apps.site.models import Field
 # http://stackoverflow.com/questions/3712688/creation-of-dynamic-model-fields-in-django
@@ -22,7 +22,8 @@ class DynamicModelMixin(BasePoint, BaseAudit):
                                     db_column='user_num_snippet_id')
     snippet = models.ForeignKey('Snippet', null=True, blank=True)
     project = models.ForeignKey('Project')
-    manually_reviewed = models.BooleanField()
+    manually_reviewed = models.BooleanField(default=False)
+    filter_fields = BaseAudit.filter_fields + ('project',)
     objects = RecordManager()
 
     class Meta:
@@ -38,10 +39,11 @@ class DynamicModelMixin(BasePoint, BaseAudit):
     def form(self):
         if not hasattr(self, '_form'):
             from localground.apps.site.models import Form
+
             self._form = (Form.objects
-                          #.prefetch_related('field_set', 'field_set__data_type')
+                          # .prefetch_related('field_set', 'field_set__data_type')
                           .get(table_name=self._meta.db_table)
-                          )
+            )
         return self._form
 
     @property
@@ -226,7 +228,6 @@ class DynamicModelMixin(BasePoint, BaseAudit):
 
 
 class ModelClassBuilder(object):
-
     def __init__(self, form):
         self.name = 'form_%s' % form.id
         self.form = form
@@ -262,20 +263,29 @@ class ModelClassBuilder(object):
                 setattr(ModelClassBuilder, key, value)
 
         # Set up a dictionary to simulate declarations within a class
+        '''
         try:
             del cache.app_models[self.app_label][self.name.lower()]
         except KeyError:
             pass
+        except AttributeError:
+            pass
+        '''
         attrs = {'__module__': self.module, 'Meta': ModelClassBuilder}
 
         # Add in any fields that were provided
         attrs.update(self.additional_fields)
+        attrs.update({
+            'filter_fields': DynamicModelMixin.filter_fields + tuple(self.dynamic_fields.keys())
+        })
+
+
 
         '''
-		-------------------
-		Begin Model Methods
-		-------------------
-		'''
+        -------------------
+        Begin Model Methods
+        -------------------
+        '''
 
         def save(self, user, *args, **kwargs):
             is_new = self.pk is None
@@ -287,7 +297,7 @@ class ModelClassBuilder(object):
                 self.date_created = get_timestamp_no_milliseconds()
             self.last_updated_by = user
             self.time_stamp = get_timestamp_no_milliseconds()
-            #self.project = self.form.project
+            # self.project = self.form.project
             super(self.__class__, self).save(*args, **kwargs)
 
         @classmethod
@@ -340,14 +350,20 @@ class ModelClassBuilder(object):
 
         attrs.update(dict(
             save=save,
-            filter_fields=filter_fields
+            #filter_fields=('id', 'name')
         ))
+        
+        # --------------------------------------------------
+        # remove model from  application cache, if it exists
+        # --------------------------------------------------
+        from django.apps import apps
+        app_models = apps.all_models[self.app_label]
+        if app_models.get(self.name):
+            del app_models[self.name]
+        # --------------------------------------------------
 
         # Create the class, which automatically triggers ModelBase processing
         self._model_class = type(self.name, (DynamicModelMixin, ), attrs)
-        #import sys
-        #sys.stderr.write('\n%s' % self._model_class._meta.get_all_field_names())
-        #sys.stderr.write('\n%s' % self.additional_fields)
         return self._model_class
 
     def add_dynamic_fields_to_model(self):
@@ -367,24 +383,24 @@ class ModelClassBuilder(object):
             elif n.data_type.id == Field.DataTypes.DATETIME:
                 field = models.DateTimeField(**kwargs)
             elif n.data_type.id == Field.DataTypes.BOOLEAN:
-                field = models.BooleanField(**kwargs)
+                field = models.NullBooleanField(**kwargs)
             elif n.data_type.id == Field.DataTypes.DECIMAL:
                 field = models.FloatField(**kwargs)
             elif n.data_type.id == Field.DataTypes.PHOTO:
                 field = models.ForeignKey(
-                        'Photo',
-                        null=True,
-                        blank=True,
-                        db_column=n.col_name_db
-                    )
-                #raise Exception(field)
+                    'Photo',
+                    null=True,
+                    blank=True,
+                    db_column=n.col_name_db
+                )
+                # raise Exception(field)
             elif n.data_type.id == Field.DataTypes.AUDIO:
                 field = models.ForeignKey(
-                        'Audio',
-                        null=True,
-                        blank=True,
-                        db_column=n.col_name_db
-                    )
+                    'Audio',
+                    null=True,
+                    blank=True,
+                    db_column=n.col_name_db
+                )
 
             # add dynamic field:
             self.dynamic_fields.update({
@@ -403,15 +419,14 @@ class ModelClassBuilder(object):
                 })
         self.additional_fields.update(self.dynamic_fields)
         self.additional_fields.update(self.snippet_fields)
-        #import sys
-        #sys.stderr.write('%s' % self.additional_fields)
+        # import sys
+        # sys.stderr.write('%s' % self.additional_fields)
 
     def sync_db(self):
-        '''
-        This function uses the same code that's used in syncdb to dynamically
-        execute DDL sql on-the-fly.  Copied from:
-        /usr/local/lib/python2.6/dist-packages/django/core/management/commands/syncdb.py
-        '''
+        # This function uses the same code that's used in syncdb to dynamically
+        # execute DDL sql on-the-fly.  Copied from:
+        # /usr/local/lib/python2.6/dist-packages/django/core/management/commands/syncdb.py
+        
         from django.core.management.color import no_style
         from django.db import connection, transaction
 
@@ -442,42 +457,29 @@ class ModelClassBuilder(object):
                 self.model_class,
                 no_style(),
                 pending_references))
-
-        errors_encountered = False
         try:
-            for statement in sql:
-                cursor.execute(statement)
+            with transaction.atomic():
+                errors_encountered = False
+                for statement in sql:
+                    cursor.execute(statement)
+
+                # Install SQL indices for newly created model
+                for model in seen_models:
+                    if model in created_models:
+                        index_sql = connection.creation.sql_indexes_for_model(
+                            model,
+                            no_style())
+                        if index_sql:
+                            for sql in index_sql:
+                                cursor.execute(sql)
         except Exception:
             self.stderr.write("Failed to install index for %s.%s model: %s\n" %
                               (app_name, model._meta.object_name, e))
-            errors_encountered = True
 
-        # Install SQL indices for newly created model
-        if not errors_encountered:
-            for model in seen_models:
-                if model in created_models:
-                    index_sql = connection.creation.sql_indexes_for_model(
-                        model,
-                        no_style())
-                    if index_sql:
-                        try:
-                            for sql in index_sql:
-                                cursor.execute(sql)
-                        except Exception as e:
-                            self.stderr.write(
-                                "Failed to install index for %s.%s model: %s\n" %
-                                (app_name, model._meta.object_name, e))
-                            errors_encountered = True
-
-        if errors_encountered:
-            transaction.rollback_unless_managed()
-        else:
-            transaction.commit_unless_managed()
-
-        '''
-		Add to ContentTypes also:
-		'''
+        #Add to ContentTypes also:
+        
         from django.utils.encoding import smart_text
+
         ct = ContentType(
             name=smart_text(self.model_class._meta.verbose_name_raw),
             app_label=self.model_class._meta.app_label,

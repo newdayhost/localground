@@ -23,7 +23,8 @@ ONLY_SUPERUSERS_CAN_REGISTER_PEOPLE = False
 ACCOUNT_ACTIVATION_DAYS = 5
 SESSION_COOKIE_NAME = 'sessionid'
 
-
+#TEST_RUNNER = 'django.test.simple.DjangoTestSuiteRunner'
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Custom Local Variables
 SERVER_HOST = os.environ.get('SERVER_HOST', 'yoursite.com')
@@ -49,7 +50,10 @@ TAGGING_AUTOCOMPLETE_JS_BASE_URL = '/%s/scripts/jquery-autocomplete' % STATIC_ME
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'YOUR_CLIENT_KEY'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'YOUR_SECRET'
 
+#SWAMP_DRAGON_CONNECTION = ('swampdragon.connections.sockjs_connection.DjangoSubscriberConnection', '/data')
+
 DEFAULT_BASEMAP_ID = 12
+
 #OS variables:
 USER_ACCOUNT = 'linux-user-account'     #account to use for creating new OS files / directories
 GROUP_ACCOUNT = 'linux-user-group'      #group to use for creating new OS files / directories
@@ -85,7 +89,7 @@ DATABASES = {
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = None
+TIME_ZONE = 'UTC'
 
 DATE_INPUT_FORMATS = ('%m/%d/%Y', '%Y-%m-%d', '%m/%d/%y', '%m-%d-%y', '%m-%d-%Y')
 TIME_INPUT_FORMATS = ('%I:%M:%S %p', '%H:%M:%S', '%H:%M')
@@ -169,9 +173,9 @@ ROOT_URLCONF = 'localground.apps.site.urls'
 TEMPLATE_DIRS = (
     '%s/templates' % APPS_ROOT,
 )
-FIXTURE_DIRS = (
-    '%s/fixtures' % APPS_ROOT,
-)
+#FIXTURE_DIRS = (
+#    '%s/fixtures' % APPS_ROOT,
+#)
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
@@ -182,29 +186,31 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.gis',
+    'django.contrib.staticfiles',
     'localground',
     'localground.apps',
     'localground.apps.management',
     'localground.apps.site',
     'localground.apps.registration',        #taken from the django-registration module
     'tagging',                              #for tagging of blog posts in Django
-    'localground.apps.contenttypes',
-    #'django.contrib.admin',
+    'django.contrib.admin',
     'rest_framework',
     'corsheaders',
     'social.apps.django_app.default',
+    'swampdragon'
 )
 
 REST_FRAMEWORK = {
     'PAGINATE_BY': 10,
     'PAGINATE_BY_PARAM': 'page_size',
-    'MAX_PAGINATE_BY': 8000,          
+    'MAX_PAGINATE_BY': 8000,
+    'DEFAULT_METADATA_CLASS': 'localground.apps.site.api.metadata.CustomMetadata',
     'DEFAULT_RENDERER_CLASSES': (
         'localground.apps.site.api.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.JSONPRenderer',
+        'rest_framework_jsonp.renderers.JSONPRenderer',
         'localground.apps.site.api.renderers.CSVRenderer',
-        'rest_framework.renderers.XMLRenderer'
+        'rest_framework_xml.renderers.XMLRenderer'
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
@@ -218,6 +224,21 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
 }
+SWAMP_DRAGON_CONNECTION = ('swampdragon.connections.sockjs_connection.DjangoSubscriberConnection', '/data')
+SWAMP_DRAGON_REDIS_PORT = 6379 #default
+SWAMP_DRAGON_PORT = 9999 #default
+DRAGON_URL='http://sd.localground.org:7777/' #remove port for prod
+#Other swampdragon settings that may be important for production server
+#SWAMP_DRAGON_REDIS_HOST - defaults to localhost
+#SWAMP_DRAGON_HOST - defaults to localhost
+#SWAMP_DRAGON_REDIS_DB - redis db number, defaults to 0
+#SWAMP_DRAGON - dict exposed to javascript users if you embed
+#                        {% load swampdragon_tags %} in a template with 
+#                        {% swampdragon_settings %} somewhere in the page
+SWAMP_DRAGON = {'um': 'okay'}
+
+CORS_ORIGIN_ALLOW_ALL = True
+
 
 # Local settings override project settings
 try:
@@ -228,5 +249,4 @@ except NameError:
     except ImportError:
         pass
 
-CORS_ORIGIN_ALLOW_ALL = True
 
