@@ -37,8 +37,8 @@ before_install:
   
   # Install custom PostgreSQL / PostGIS
   - sudo apt-get install postgresql-9.3
-  - sudo apt-get install postgresql-client-9.3
-  - sudo apt-get install postgresql-server-dev-9.3
+  #- sudo apt-get install postgresql-client-9.3
+  #- sudo apt-get install postgresql-server-dev-9.3
   - sudo apt-get install postgresql-plperl-9.3
   - sudo apt-get install postgresql-9.3-postgis-2.1
   - sudo apt-get install postgresql-9.3-postgis-scripts
