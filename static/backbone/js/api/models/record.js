@@ -53,9 +53,17 @@ define(["models/base", "underscore"], function (Base, _) {
             }
             return json;
         },
-        
-        save: function (key, val, options) {		
-            return Backbone.Model.prototype.save.call(this, key, val, options);		
+
+        save: function (key, val, options) {
+            /*if (typeof key === 'object' && key.geometry) {
+                if (typeof key.geometry === 'object' && val.patch) {
+                    //key.geometry = JSON.stringify(key.geometry);
+                    console.log(key, val);
+                    var newKey = { geometry: JSON.stringify(key.geometry) };
+                    return Backbone.Model.prototype.save.call(this, newKey, val, options);
+                }
+            }*/
+            return Backbone.Model.prototype.save.call(this, key, val, options);
 		}
 
     });
