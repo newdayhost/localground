@@ -38,10 +38,32 @@ module.exports = function(grunt) {
 	        	}
 	        }
 		    
+		},
+
+		uglify: {
+			mapplication: {
+				files: {
+					'./static/backbone/js/api-build/mapplication.min.js': 
+						['./static/backbone/js/api-build/mapplication.js']
+				}
+			},
+			print: {
+				files: {
+					'./static/backbone/js/api-build/print_base.min.js': 
+						['./static/backbone/js/api-build/print_base.js']
+				}
+			},
+			embeddedMapplication: {
+				files: {
+					'./static/backbone/js/api-build/embedded-mapplication.min.js': 
+						['./static/backbone/js/api-build/embedded-mapplication.js']
+				}
+			},
 		}
 
     });
     grunt.loadNpmTasks('grunt-contrib-requirejs');
-    grunt.registerTask('default', 'requirejs');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.registerTask('default', ['requirejs', 'uglify']);
 
 };

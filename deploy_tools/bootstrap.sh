@@ -125,7 +125,7 @@ mkdir userdata/prints
 mkdir userdata/deleted
 #Avoiding the issue w/serving django contrib static files vs. Apache's alias
 sudo cp -r /usr/local/lib/python2.7/dist-packages/swampdragon/static/swampdragon /localground/static/swampdragon
-echo "Y" | sudo npm install -g grunt grunt-cli grunt-contrib-requirejs
+echo "Y" | sudo npm install grunt grunt-cli grunt-contrib-requirejs grunt-contrib-uglify
 #################
 # Install Redis #
 #################
