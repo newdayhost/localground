@@ -1,7 +1,8 @@
-/**
- * Created by zmmachar on 12/11/14.
- */
-define(["underscore",
+var pathPrefix = pathPrefix || '';
+require([pathPrefix+'base.js'], function(config) {
+    require(
+        ["jquery",
+        "underscore",
         "base-mapplication",
         "views/maps/basemap",
         "views/maps/caption/caption",
@@ -9,7 +10,7 @@ define(["underscore",
         "collections/projects",
         "jquery.bootstrap"
     ],
-    function (_, BaseMapplication, BaseMap, CaptionManager, SnapshotLoader, Projects) {
+    function ($, _, BaseMapplication, BaseMap, CaptionManager, SnapshotLoader, Projects) {
         "use strict";
 
         var Mapplication = BaseMapplication;
@@ -29,5 +30,6 @@ define(["underscore",
             this.initAJAX(options);
         });
 
-        return Mapplication;
+        $(Mapplication.start(basemapOpts));
     });
+});

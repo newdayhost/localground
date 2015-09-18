@@ -18,8 +18,6 @@
 		<div id="layer_panel" class="side-panel tab-pane"></div>
 	</body>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&v=3.11&libraries=drawing,places,geometry"></script>
-    <script src="/static/backbone/js/external/require.js"></script>
-    <script src="/static/backbone/js/api/base.js"></script>
     <script>
         var defaultLocation = {
 				center: new google.maps.LatLng(40.91351257612757, -123.4423828125),
@@ -39,14 +37,10 @@
 				activeMapTypeID: {{ basemap_id|default:"12" }},
 				tilesets: {% autoescape off %}{{ overlays }}{% endautoescape %}
 			};
-			require(
-				["jquery", "/static/backbone/js/api/mapplication.js"],
-				function($, MapApplication) {
-					$(function() {
-						MapApplication.start(basemapOpts);
-					});
-				}
-            );
-
+			var templateDir = '/static/backbone/js/templates';
+			var pathPrefix = "/static/backbone/js/api/";
     </script>
+    <script data-main="/static/backbone/js/api-build/mapplication.js" src="/static/backbone/js/external/require.js"></script>
+
+
 </html>

@@ -1,4 +1,8 @@
-define(["underscore",
+var pathPrefix = pathPrefix || '';
+require([pathPrefix+'base.js'], function(config) {
+    require(
+        ["jquery",
+        "underscore",
         "base-mapplication",
         "views/maps/basemap",
         "views/maps/sidepanel/dataPanel",
@@ -13,11 +17,10 @@ define(["underscore",
         "views/maps/overlays/layerManager",
         "jquery.bootstrap"
     ],
-    function (_, BaseMapplication, BaseMap, DataPanel, LayerPanel, Tabs,
+    function ($, _, BaseMapplication, BaseMap, DataPanel, LayerPanel, Tabs,
               TopBar, DataManager, appUtilities, Projects, Layers,
               GeoreferenceManager, LayerManager) {
         "use strict";
-
         var Mapplication = BaseMapplication;
 
         Mapplication.addRegions({
@@ -52,5 +55,6 @@ define(["underscore",
             this.initAJAX(options);
         });
 
-        return Mapplication;
+        $(Mapplication.start(basemapOpts));
     });
+});

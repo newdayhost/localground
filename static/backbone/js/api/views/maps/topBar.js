@@ -1,6 +1,6 @@
 define(["marionette",
         "jquery",
-        'text!/static/backbone/js/templates/mapTopbar.html',
+        'text!' + templateDir + '/mapTopbar.html',
     ],
     function (Marionette, $, MapNavbar) {
         'use strict';

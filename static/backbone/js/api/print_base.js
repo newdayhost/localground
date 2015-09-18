@@ -1,7 +1,7 @@
-/**
- * Created by zmmachar on 12/11/14.
- */
-define(["underscore",
+var pathPrefix = pathPrefix || '';
+require([pathPrefix+'base.js'], function(config) {
+    require(["jquery",
+        "underscore",
         "base-mapplication",
         "lib/printLoader",
         "collections/projects",
@@ -9,7 +9,7 @@ define(["underscore",
         "views/prints/print",
         "jquery.bootstrap"
     ],
-    function (_, BaseMapplication, PrintLoader, Projects, TopBar, Print) {
+    function ($, _, BaseMapplication, PrintLoader, Projects, TopBar, Print) {
         "use strict";
 
         var PrintBase = BaseMapplication;
@@ -35,5 +35,6 @@ define(["underscore",
             this.initAJAX(options);
         });
 
-        return PrintBase;
+        $(PrintBase.start(basemapOpts));
+    });
 });

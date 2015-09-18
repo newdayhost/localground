@@ -16,8 +16,6 @@
         <div id="print-container"></div>
 	</body>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&v=3.11&libraries=drawing,places,geometry"></script>
-    <script src="/static/backbone/js/external/require.js"></script>
-    <script src="/static/backbone/js/api/base.js"></script>
     <script>
         var defaultLocation = {
 				center: new google.maps.LatLng(40.91351257612757, -123.4423828125),
@@ -55,15 +53,10 @@
 		    {% if selected_project %}
 		        basemapOpts.selectedProjectID = {{selected_project.id}}; 
 		    {% endif %}
+		    var templateDir = '/static/backbone/js/templates';
+			var pathPrefix = "/static/backbone/js/api/";
 
-			require(
-				["jquery", "/static/backbone/js/api/print_base.js"],
-				function($, PrintBase) {
-					$(function() {
-						PrintBase.start(basemapOpts);
-					});
-				}
-            );
 
     </script>
+    <script data-main="/static/backbone/js/api-build/print_base.js" src="/static/backbone/js/external/require.js"></script>
 </html>

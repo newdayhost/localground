@@ -1,7 +1,7 @@
 define(['underscore',
         'jquery',
         'color-picker',
-        'text!/static/backbone/js/templates/infoBubble/markerAttachTip.html',
+        'text!' + templateDir + '/infoBubble/markerAttachTip.html',
         'lib/maps/overlays/infobubbles/base',
         'slick'], function (_, $, jscolor, markerAttachTipTemplate, BaseBubble) {
     "use strict";
