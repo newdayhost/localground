@@ -158,7 +158,8 @@ def generate_print_new(
         'forms': json.dumps([f.to_dict() for f in forms]),
         'selected_project': project,
         'prefix': prefix,
-        'formset': formset
+        'formset': formset,
+        'DEBUG': settings.DEBUG
     })
     if form is not None:
         extras.update({'form': json.dumps(form.to_dict())})
@@ -288,7 +289,8 @@ def generate_print(
         'forms': json.dumps([f.to_dict() for f in forms]),
         'selected_project': project,
         'prefix': prefix,
-        'formset': formset
+        'formset': formset,
+        'DEBUG': settings.DEBUG
     })
     if form is not None:
         extras.update({'form': json.dumps(form.to_dict())})

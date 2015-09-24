@@ -71,7 +71,8 @@ def show_map_editor(request, template='map/editor.html', slug=None):
         'projects': json.dumps(projects),
         #'snapshots': json.dumps(snapshots),
         'presentations': json.dumps(presentations),
-        'num_projects': len(projects)
+        'num_projects': len(projects),
+        'DEBUG': settings.DEBUG
     })
     return render_to_response(template, context)
 

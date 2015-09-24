@@ -40,7 +40,13 @@
 			var templateDir = '/static/backbone/js/templates';
 			var pathPrefix = "/static/backbone/js/api/";
     </script>
-    <script data-main="/static/backbone/js/api-build/mapplication.min.js" src="/static/backbone/js/external/require.js"></script>
 
+    {% if DEBUG %}
+        <!-- use un-minified, un-concatenated code -->
+        <script data-main="/static/backbone/js/api/mapplication.js" src="/static/backbone/js/external/require.js"></script>
+    {% else %}
+        <!-- Use minified, concatenated code -->
+        <script data-main="/static/backbone/js/api-build/mapplication.min.js" src="/static/backbone/js/external/require.js"></script>
+    {% endif %}
 
 </html>

@@ -85,7 +85,6 @@ echo "Y" | sudo apt-get install python-scipy
 sudo add-apt-repository -y ppa:mc3man/trusty-media #trusty ubuntu doesn't have an ffmpeg package (only libav)
 sudo apt-get update
 echo "Y" | sudo apt-get install ffmpeg
-#echo "Y" | sudo apt-get install libavcodec-extra-53
 echo "Y" | sudo apt-get install redis-server
 
 
@@ -102,6 +101,7 @@ sudo pip install PIL==1.1.7
 #############################
 curl -sL https://deb.nodesource.com/setup | sudo bash -
 echo "Y" | sudo apt-get install nodejs
+echo "Y" | sudo ln -s /usr/bin/nodejs /usr/bin/node # puts npm on the system path
 echo "Y" | sudo apt-get install npm
 echo "Y" | sudo npm install -g bower
 
@@ -125,6 +125,9 @@ mkdir userdata/prints
 mkdir userdata/deleted
 #Avoiding the issue w/serving django contrib static files vs. Apache's alias
 sudo cp -r /usr/local/lib/python2.7/dist-packages/swampdragon/static/swampdragon /localground/static/swampdragon
+
+# Note: this command needs to be called in the /localground directory so that the
+# node_modules directory gets installed locally. Don't use -g flag.
 echo "Y" | sudo npm install grunt grunt-cli grunt-contrib-requirejs grunt-contrib-uglify
 #################
 # Install Redis #
