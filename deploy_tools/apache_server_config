@@ -9,7 +9,7 @@
 </VirtualHost>
 
 <VirtualHost *:443>
-    DocumentRoot /var/www/code/dev/localground
+    DocumentRoot /localground
     ServerName dev.localground.org
     # ------------------------------------------------------------------
     # For serving user-generated media (images, audio, data, etc.)
@@ -18,16 +18,16 @@
     # ------------------------------------------------------------------
     WSGIPassAuthorization On
     XSendFile on
-    XSendFilePath /var/www/code/dev/localground/userdata
-    <Directory "/var/www/code/dev/localground/userdata">
+    XSendFilePath /localground/userdata
+    <Directory "/localground/userdata">
        Require all denied
     </Directory>
 
     # --------------------------------------
     # For static files (css, js, and images)
     #---------------------------------------
-    Alias /static/ "/var/www/code/dev/localground/static/"
-    <Directory "/var/www/code/dev/localground/static">
+    Alias /static/ "/localground/static/"
+    <Directory "/localground/static">
         Options +FollowSymlinks
         Options Indexes
         Require all granted
@@ -37,9 +37,9 @@
     # -------------------
     # To make Django work
     # -------------------
-    WSGIScriptAlias / "/var/www/code/dev/localground/apache/app_config.wsgi"
+    WSGIScriptAlias / "/localground/apache/app_config.wsgi"
     WSGIPassAuthorization On
-    <Directory "/var/www/code//dev/localground/apache">
+    <Directory "/localground/apache">
         Require all granted
     </Directory>
 
@@ -48,7 +48,7 @@
     # creating tiles and for reprojecting images) to be printed on you
     # paper maps.  Adjust these paths to meet your needs...
     # ----------------------------------------------------------------
-    SetEnvIf Request_URI "/ows/ms.fcgi" MS_MAPFILE=/var/www/code/dev/localground/mapserver/localground.map
+    SetEnvIf Request_URI "/ows/ms.fcgi" MS_MAPFILE=/localground/mapserver/localground.map
     # MapServer FastCGI location
     ScriptAlias /ows/ /var/www/ows/
     <Directory "/var/www/ows">
