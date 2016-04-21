@@ -43,3 +43,4 @@ from localground.apps.site.models.barcoded import Scan, ImageOpts
 from localground.apps.site.models.photo import Photo
 from localground.apps.site.models.audio import Audio
 from localground.apps.site.models.video import Video
+from localground.apps.site.models.csv import CSVFile
