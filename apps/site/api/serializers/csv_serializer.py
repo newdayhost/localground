@@ -16,7 +16,7 @@ class CSVSerializer(serializers.HyperlinkedModelSerializer):
     csv_file_path = serializers.CharField()
     dest_table = serializers.CharField()
     project = serializers.HyperlinkedRelatedField(
-        view_name='project',
+        view_name='project-detail',
         read_only=True)
     user = serializers.HyperlinkedRelatedField(
         label='user',
