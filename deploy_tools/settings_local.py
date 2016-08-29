@@ -4,10 +4,10 @@ TEMPLATE_DEBUG = DEBUG
 GDAL_LIBRARY_PATH='/usr/lib/libgdal.so.1.17.1'
 
 ADMINS = (
-    ('Admin', 'your_email@gmail.com'),
+    ('Admin', 'brian@newday.host'),
 )
-DEFAULT_FROM_EMAIL = '"Site Support" <vanwars@gmail.com>'
-ADMIN_EMAILS = ['your_email@gmail.com',]
+DEFAULT_FROM_EMAIL = '"staging localground" <localground@newday.host>'
+ADMIN_EMAILS = ['localground@newday.host',]
 
 # Custom Local Variables
 PROTOCOL = 'http'

@@ -1,35 +1,36 @@
 #!/bin/bash -ex
 
-sudo apt-get update
+sudo apt update
 ############################
 # Install Useful Utilities #
 ############################
-sudo apt-get install -y git curl vim
+sudo apt install -y git curl vim
 
 ###################################
 # Install Apache-Related Packages #
 ###################################
-echo "Y" | sudo apt-get install apache2
-echo "Y" | sudo apt-get install libapache2-mod-fcgid
-echo "Y" | sudo apt-get install libapache2-mod-xsendfile
-echo "Y" | sudo apt-get install libapache2-mod-wsgi
-echo "Y" | sudo apt-get install sendmail
-echo "Y" | sudo apt-get install libmail-sendmail-perl
+echo "Y" | sudo apt install apache2
+echo "Y" | sudo apt install libapache2-mod-fcgid
+echo "Y" | sudo apt install libapache2-mod-xsendfile
+echo "Y" | sudo apt install libapache2-mod-wsgi
+echo "Y" | sudo apt install sendmail
+echo "Y" | sudo apt install libmail-sendmail-perl
 
 ################
 # Install Java #
 ################
-sudo apt-get -y install openjdk-7-jre
+#version went from 7 to 8
+sudo apt -y install openjdk-8-jre
 
 #######################################
 # Install GDAL, MapServer, Etc. First #
 #######################################
-echo "Y" | sudo apt-get install python-software-properties
-echo "Y" | sudo apt-get install mapserver-bin
-echo "Y" | sudo apt-get install gdal-bin
-echo "Y" | sudo apt-get install cgi-mapserver
-echo "Y" | sudo apt-get install python-gdal
-echo "Y" | sudo apt-get install python-mapscript
+echo "Y" | sudo apt install python-software-properties
+echo "Y" | sudo apt install mapserver-bin
+echo "Y" | sudo apt install gdal-bin
+echo "Y" | sudo apt install cgi-mapserver
+echo "Y" | sudo apt install python-gdal
+echo "Y" | sudo apt install python-mapscript
 	
 ###############################################
 # Add the google projection to the proj4 file #
@@ -38,15 +39,15 @@ PROJ_FILE=/usr/share/proj/epsg
 sudo printf '\n#Google Projection\n<900913> +proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs\n' | sudo tee -a $PROJ_FILE
 
 ###########################################
-# Then Install PostgreSQL9.1, PostGIS 9.1 #
+# Then Install PostgreSQL9.1, PostGIS 9.5 #
 ###########################################
-echo "Y" | sudo apt-get install postgresql-9.3
-echo "Y" | sudo apt-get install postgresql-client-9.3
-echo "Y" | sudo apt-get install postgresql-server-dev-9.3
-echo "Y" | sudo apt-get install postgresql-plperl-9.3
-echo "Y" | sudo apt-get install postgresql-9.3-postgis-2.1
-echo "Y" | sudo apt-get install postgresql-9.3-postgis-scripts
-echo "Y" | sudo apt-get install libpq-dev
+echo "Y" | sudo apt install postgresql-9.5
+echo "Y" | sudo apt install postgresql-client-9.5
+echo "Y" | sudo apt install postgresql-server-dev-9.5
+echo "Y" | sudo apt install postgresql-plperl-9.5
+echo "Y" | sudo apt install postgresql-9.5-postgis-2.2
+echo "Y" | sudo apt install postgresql-9.5-postgis-scripts
+echo "Y" | sudo apt install libpq-dev
 
 ##################################
 # Configure PostgreSQL / PostGIS #
@@ -55,7 +56,7 @@ echo "Y" | sudo apt-get install libpq-dev
 DB_OWNER="postgres"
 DB_NAME="lg_test_database"
 DB_PASSWORD="password"
-PG_VERSION=9.3
+PG_VERSION=9.5
 PG_HBA="/etc/postgresql/$PG_VERSION/main/pg_hba.conf"
 PEER="local   all             postgres                                peer"
 TRUST="local   all             postgres                                trust"
@@ -74,35 +75,36 @@ sudo service postgresql restart
 ########################################################################
 # Install Graphics, Miscellaneous Stuff...
 ########################################################################
-echo "Y" | sudo apt-get install python-gdal
-echo "Y" | sudo apt-get install libcv-dev libopencv-dev python-opencv
-echo "Y" | sudo apt-get install python-psycopg2
-echo "Y" | sudo apt-get install python-setuptools
-echo "Y" | sudo apt-get install python-pip=1.5.4-1ubuntu3 #try a different version of pip?
-#sudo easy_install -U pip
-echo "Y" | sudo apt-get install python-dev
-echo "Y" | sudo apt-get install python-mapscript
-echo "Y" | sudo apt-get install python-scipy
-sudo add-apt-repository -y ppa:mc3man/trusty-media #trusty ubuntu doesn't have an ffmpeg package (only libav)
-sudo apt-get update
-echo "Y" | sudo apt-get install ffmpeg
-#echo "Y" | sudo apt-get install libavcodec-extra-53
-echo "Y" | sudo apt-get install redis-server
+echo "Y" | sudo apt install python-gdal
+echo "Y" | sudo apt install libcv-dev libopencv-dev python-opencv
+echo "Y" | sudo apt install python-psycopg2
+echo "Y" | sudo apt install python-setuptools
+echo "Y" | sudo apt install python-pip
+sudo pip install --upgrade pip
+echo "Y" | sudo apt install python-dev
+echo "Y" | sudo apt install python-mapscript
+echo "Y" | sudo apt install python-scipy
+#sudo add-apt-repository -y ppa:mc3man/trusty-media #trusty ubuntu doesn't have an ffmpeg package (only libav)
+#sudo apt update
+echo "Y" | sudo apt install ffmpeg
+#echo "Y" | sudo apt install libavcodec-extra-53
+echo "Y" | sudo apt install redis-server
 
 
 ############################
 # Install PIP Dependencies #
 ############################
 # there may be some problems with the map script / map server install
-sudo ln -s /vagrant /localground
+#fix link
+sudo ln -s /localground/ /vagrant
 sudo pip install -r /vagrant/deploy_tools/requirements.txt
 
 #############################
 # Install Node.js and Bower #
 #############################
 #curl -sL https://deb.nodesource.com/setup | sudo bash -
-#echo "Y" | sudo apt-get install nodejs
-#echo "Y" | sudo apt-get install npm
+#echo "Y" | sudo apt install nodejs
+#echo "Y" | sudo apt install npm
 #echo "Y" | sudo npm install -g bower
 
 ####################################
@@ -128,10 +130,10 @@ sudo cp -r /usr/local/lib/python2.7/dist-packages/swampdragon/static/swampdragon
 #################
 # Install Redis #
 #################
-sudo apt-get -y install redis-server rabbitmq-server
+sudo apt -y install redis-server rabbitmq-server
 
 # we use supervisor to run our celery worker 
-sudo apt-get -y install supervisor
+sudo apt -y install supervisor
 sudo cp /localground/deploy_tools/celeryd.conf /etc/supervisor/conf.d/celeryd.conf
 sudo mkdir /var/log/celery
 
