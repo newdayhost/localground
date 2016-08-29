@@ -1,10 +1,10 @@
 from localground.apps.settings import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-GDAL_LIBRARY_PATH='/usr/lib/libgdal.so.1.17.1'
+GDAL_LIBRARY_PATH='/usr/lib/libgdal.so.1'
 
 ADMINS = (
-    ('Admin', 'brian@newday.host'),
+    ('Admin', 'localground@newday.host'),
 )
 DEFAULT_FROM_EMAIL = '"staging localground" <localground@newday.host>'
 ADMIN_EMAILS = ['localground@newday.host',]

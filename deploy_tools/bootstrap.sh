@@ -145,7 +145,7 @@ sudo cp /localground/deploy_tools/flower.conf /etc/supervisor/conf.d/flower.conf
 # Create required Django tables and run tests #
 ###############################################
 cd /localground/apps
-sudo ln -s /usr/lib/libgdal.so.1.17.1 /usr/lib/libgdal.so.1.17.0
+#sudo ln -s /usr/lib/libgdal.so.1.17.1 /usr/lib/libgdal.so.1.17.0
 python manage.py syncdb --noinput
 python manage.py test --verbosity=2
 sudo service supervisor restart
